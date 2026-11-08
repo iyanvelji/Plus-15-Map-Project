@@ -1,0 +1,392 @@
+,budget_department,actual_department,level_2,business_unit,year,budget_status,fund,budget
+0,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2023,Approved,Operating Expenditures Net of Recoveries,590.067375
+1,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2023,Approved,Operating Expenditures Net of Recoveries,135.21624
+2,Community Services,Community Services,Calgary Fire,Calgary Fire,2023,Approved,Operating Expenditures Net of Recoveries,254.406155
+3,Community Services,Community Services,Community Strategies,Community Strategies,2023,Approved,Operating Expenditures Net of Recoveries,63.084649
+4,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2023,Approved,Operating Expenditures Net of Recoveries,119.365222
+5,Community Services,Community Services,GM - Community Services,GM - Community Services,2023,Approved,Operating Expenditures Net of Recoveries,5.304572
+6,Community Services,Community Services,Partnerships,Partnerships,2023,Approved,Operating Expenditures Net of Recoveries,22.67783
+7,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2023,Approved,Operating Expenditures Net of Recoveries,77.479464
+8,Corporate Programs,Corporate Programs,Corporate Programs,Corporate Programs,2023,Approved,Operating Expenditures Net of Recoveries,233.182718
+9,Corporate Services,Chief Administrator’s Office,Chief Administrator’s Office,Chief Administrator's Office,2023,Approved,Operating Expenditures Net of Recoveries,3.777719
+10,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2023,Approved,Operating Expenditures Net of Recoveries,13.435535
+11,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2023,Approved,Operating Expenditures Net of Recoveries,27.755662
+12,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Corporate Planning & Performance,2023,Approved,Operating Expenditures Net of Recoveries,8.719749
+13,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2023,Approved,Operating Expenditures Net of Recoveries,30.965618
+14,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,GM - Corporate Planning & Financial Services,2023,Approved,Operating Expenditures Net of Recoveries,1.675154
+15,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2023,Approved,Operating Expenditures Net of Recoveries,12.132641
+16,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2023,Approved,Operating Expenditures Net of Recoveries,17.623696
+17,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2023,Approved,Operating Expenditures Net of Recoveries,28.514925
+18,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security","GM - Law, Legislative Services & Security",2023,Approved,Operating Expenditures Net of Recoveries,0.757355
+19,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2023,Approved,Operating Expenditures Net of Recoveries,17.877173
+20,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2023,Approved,Operating Expenditures Net of Recoveries,17.697949
+21,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2023,Approved,Operating Expenditures Net of Recoveries,28.252203
+22,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2023,Approved,Operating Expenditures Net of Recoveries,5.373304
+23,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2023,Approved,Operating Expenditures Net of Recoveries,38.771715
+24,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2023,Approved,Operating Expenditures Net of Recoveries,59.039488
+25,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2023,Approved,Operating Expenditures Net of Recoveries,13.554228
+26,Council,Council,Audit Committee,Audit Committee,2023,Approved,Operating Expenditures Net of Recoveries,0.775231
+27,Council,Council,City Auditor's Office,City Auditor's Office,2023,Approved,Operating Expenditures Net of Recoveries,3.400082
+28,Council,Council,Mayor's Office,Mayor's Office,2023,Approved,Operating Expenditures Net of Recoveries,1.791863
+29,Council,Council,Office of the Councillors,Office of the Councillors,2023,Approved,Operating Expenditures Net of Recoveries,6.72985
+30,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2023,Approved,Operating Expenditures Net of Recoveries,6.098364
+31,Infrastructure Services,Infrastructure Services,GM - Infrastructure Services,GM - Infrastructure Services,2023,Approved,Operating Expenditures Net of Recoveries,1.326136
+32,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2023,Approved,Operating Expenditures Net of Recoveries,19.331375
+33,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2023,Approved,Operating Expenditures Net of Recoveries,10.921243
+34,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2023,Approved,Operating Expenditures Net of Recoveries,44.551215
+35,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2023,Approved,Operating Expenditures Net of Recoveries,13.969823
+36,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2023,Approved,Operating Expenditures Net of Recoveries,495.150529
+37,Operational Services,Operational Services,Facilities,Facilities,2023,Approved,Operating Expenditures Net of Recoveries,70.21435
+38,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2023,Approved,Operating Expenditures Net of Recoveries,7.580214
+39,Operational Services,Operational Services,GM - Operational Services,GM - Operational Services,2023,Approved,Operating Expenditures Net of Recoveries,8.185608
+40,Operational Services,Operational Services,Mobility,Mobility,2023,Approved,Operating Expenditures Net of Recoveries,274.71436
+41,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2023,Approved,Operating Expenditures Net of Recoveries,116.177154
+42,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2023,Approved,Operating Expenditures Net of Recoveries,150.194617
+43,Operational Services,Operational Services,Water Services,Water Services,2023,Approved,Operating Expenditures Net of Recoveries,571.098576
+44,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2023,Approved,Operating Expenditures Net of Recoveries,30.475726
+45,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2023,Approved,Operating Expenditures Net of Recoveries,24.627606
+46,Planning & Development Services,Planning & Development Services,Community Planning,Community Planning,2023,Approved,Operating Expenditures Net of Recoveries,43.115829
+47,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2023,Approved,Operating Expenditures Net of Recoveries,44.657981
+48,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2023,Approved,Operating Expenditures Net of Recoveries,10.810746
+49,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2023,Approved,Operating Expenditures Net of Recoveries,27.064251
+50,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2024,Approved,Operating Expenditures Net of Recoveries,597.364002
+51,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2024,Approved,Operating Expenditures Net of Recoveries,141.369544
+52,Community Services,Community Services,Calgary Fire,Calgary Fire,2024,Approved,Operating Expenditures Net of Recoveries,287.192889
+53,Community Services,Community Services,Community Strategies,Community Strategies,2024,Approved,Operating Expenditures Net of Recoveries,72.829278
+54,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2024,Approved,Operating Expenditures Net of Recoveries,123.274921
+55,Community Services,Community Services,GM - Community Services,GM - Community Services,2024,Approved,Operating Expenditures Net of Recoveries,5.753373
+56,Community Services,Community Services,Partnerships,Partnerships,2024,Approved,Operating Expenditures Net of Recoveries,24.495649
+57,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2024,Approved,Operating Expenditures Net of Recoveries,81.074398
+58,Corporate Programs,Corporate Programs,Corporate Programs,Corporate Programs,2024,Approved,Operating Expenditures Net of Recoveries,235.814709
+59,Corporate Services,Chief Administrator’s Office,Chief Administrator's Office,Chief Administrator's Office,2024,Approved,Operating Expenditures Net of Recoveries,3.958661
+60,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2024,Approved,Operating Expenditures Net of Recoveries,36.471265
+61,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Operating Office,2024,Approved,Operating Expenditures Net of Recoveries,0.705591
+62,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2024,Approved,Operating Expenditures Net of Recoveries,29.22155
+63,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Corporate Planning & Performance,2024,Approved,Operating Expenditures Net of Recoveries,9.222789
+64,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2024,Approved,Operating Expenditures Net of Recoveries,32.617592
+65,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,GM - Corporate Planning & Financial Services,2024,Approved,Operating Expenditures Net of Recoveries,1.621437
+66,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2024,Approved,Operating Expenditures Net of Recoveries,13.367465
+67,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2024,Approved,Operating Expenditures Net of Recoveries,17.670492
+68,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2024,Approved,Operating Expenditures Net of Recoveries,31.434585
+69,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security","GM - Law, Legislative Services & Security",2024,Approved,Operating Expenditures Net of Recoveries,0.789696
+70,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2024,Approved,Operating Expenditures Net of Recoveries,19.145003
+71,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2024,Approved,Operating Expenditures Net of Recoveries,18.616698
+72,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2024,Approved,Operating Expenditures Net of Recoveries,29.211784
+73,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2024,Approved,Operating Expenditures Net of Recoveries,5.879896
+74,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2024,Approved,Operating Expenditures Net of Recoveries,42.013987
+75,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2024,Approved,Operating Expenditures Net of Recoveries,64.424196
+76,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2024,Approved,Operating Expenditures Net of Recoveries,13.740564
+77,Council,Council,Audit Committee,Audit Committee,2024,Approved,Operating Expenditures Net of Recoveries,0.905547
+78,Council,Council,City Auditor's Office,City Auditor's Office,2024,Approved,Operating Expenditures Net of Recoveries,3.655316
+79,Council,Council,Mayor's Office,Mayor's Office,2024,Approved,Operating Expenditures Net of Recoveries,1.812824
+80,Council,Council,Office of the Councillors,Office of the Councillors,2024,Approved,Operating Expenditures Net of Recoveries,8.269913
+81,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2024,Approved,Operating Expenditures Net of Recoveries,6.465372
+82,Infrastructure Services,Infrastructure Services,GM - Infrastructure Services,GM - Infrastructure Services,2024,Approved,Operating Expenditures Net of Recoveries,1.37427
+83,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2024,Approved,Operating Expenditures Net of Recoveries,19.881326
+84,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2024,Approved,Operating Expenditures Net of Recoveries,10.902494
+85,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2024,Approved,Operating Expenditures Net of Recoveries,45.06696
+86,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2024,Approved,Operating Expenditures Net of Recoveries,16.330917
+87,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2024,Approved,Operating Expenditures Net of Recoveries,488.614444
+88,Operational Services,Operational Services,Facilities,Facilities,2024,Approved,Operating Expenditures Net of Recoveries,71.981297
+89,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2024,Approved,Operating Expenditures Net of Recoveries,7.580215
+90,Operational Services,Operational Services,GM - Operational Services,GM - Operational Services,2024,Approved,Operating Expenditures Net of Recoveries,12.961736
+91,Operational Services,Operational Services,Mobility,Mobility,2024,Approved,Operating Expenditures Net of Recoveries,294.220163
+92,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2024,Approved,Operating Expenditures Net of Recoveries,119.021501
+93,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2024,Approved,Operating Expenditures Net of Recoveries,158.720269
+94,Operational Services,Operational Services,Water Services,Water Services,2024,Approved,Operating Expenditures Net of Recoveries,584.152599
+95,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2024,Approved,Operating Expenditures Net of Recoveries,33.776881
+96,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2024,Approved,Operating Expenditures Net of Recoveries,29.490846
+97,Planning & Development Services,Planning & Development Services,Community Planning,Community Planning,2024,Approved,Operating Expenditures Net of Recoveries,45.878888
+98,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2024,Approved,Operating Expenditures Net of Recoveries,59.400718
+99,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2024,Approved,Operating Expenditures Net of Recoveries,67.570072
+100,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2024,Approved,Operating Expenditures Net of Recoveries,27.560616
+101,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2025,Approved,Operating Expenditures Net of Recoveries,648.053361
+102,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2025,Approved,Operating Expenditures Net of Recoveries,146.297549
+103,Community Services,Community Services,Calgary Fire,Calgary Fire,2025,Approved,Operating Expenditures Net of Recoveries,331.550766
+104,Community Services,Community Services,Community Strategies,Community Strategies,2025,Approved,Operating Expenditures Net of Recoveries,85.513152
+105,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2025,Approved,Operating Expenditures Net of Recoveries,131.891228
+106,Community Services,Community Services,GM - Community Services,GM - Community Services,2025,Approved,Operating Expenditures Net of Recoveries,2.754812
+107,Community Services,Community Services,Partnerships,Partnerships,2025,Approved,Operating Expenditures Net of Recoveries,28.422466
+108,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2025,Approved,Operating Expenditures Net of Recoveries,83.903532
+109,Corporate Programs,Corporate Programs,Corporate Programs,Corporate Programs,2025,Approved,Operating Expenditures Net of Recoveries,214.404218
+110,Corporate Services,Chief Administrator’s Office,Chief Administrator's Office,Chief Administrator's Office,2025,Approved,Operating Expenditures Net of Recoveries,5.490531
+111,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2025,Approved,Operating Expenditures Net of Recoveries,40.672708
+112,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Operating Office,2025,Approved,Operating Expenditures Net of Recoveries,14.628445
+113,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2025,Approved,Operating Expenditures Net of Recoveries,31.327944
+114,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Corporate Planning & Performance,2025,Approved,Operating Expenditures Net of Recoveries,4.999972
+115,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2025,Approved,Operating Expenditures Net of Recoveries,37.508277
+116,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,GM - Corporate Planning & Financial Services,2025,Approved,Operating Expenditures Net of Recoveries,2.904653
+117,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2025,Approved,Operating Expenditures Net of Recoveries,13.404556
+118,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2025,Approved,Operating Expenditures Net of Recoveries,28.652142
+119,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2025,Approved,Operating Expenditures Net of Recoveries,33.340024
+120,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security","GM - Law, Legislative Services & Security",2025,Approved,Operating Expenditures Net of Recoveries,0.841646
+121,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2025,Approved,Operating Expenditures Net of Recoveries,20.087347
+122,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2025,Approved,Operating Expenditures Net of Recoveries,19.467738
+123,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2025,Approved,Operating Expenditures Net of Recoveries,30.813698
+124,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2025,Approved,Operating Expenditures Net of Recoveries,6.585047
+125,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2025,Approved,Operating Expenditures Net of Recoveries,43.56337
+126,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2025,Approved,Operating Expenditures Net of Recoveries,88.732511
+127,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2025,Approved,Operating Expenditures Net of Recoveries,14.487331
+128,Council,Council,Audit Committee,Audit Committee,2025,Approved,Operating Expenditures Net of Recoveries,0.915547
+129,Council,Council,City Auditor's Office,City Auditor's Office,2025,Approved,Operating Expenditures Net of Recoveries,3.930314
+130,Council,Council,Mayor's Office,Mayor's Office,2025,Approved,Operating Expenditures Net of Recoveries,1.830824
+131,Council,Council,Office of the Councillors,Office of the Councillors,2025,Approved,Operating Expenditures Net of Recoveries,10.966764
+132,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2025,Approved,Operating Expenditures Net of Recoveries,14.640756
+133,Infrastructure Services,Infrastructure Services,GM - Infrastructure Services,GM - Infrastructure Services,2025,Approved,Operating Expenditures Net of Recoveries,1.420937
+134,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2025,Approved,Operating Expenditures Net of Recoveries,-0.000001
+135,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2025,Approved,Operating Expenditures Net of Recoveries,11.865661
+136,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2025,Approved,Operating Expenditures Net of Recoveries,11.380874
+137,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2025,Approved,Operating Expenditures Net of Recoveries,45.826021
+138,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2025,Approved,Operating Expenditures Net of Recoveries,18.886691
+139,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2025,Approved,Operating Expenditures Net of Recoveries,547.396858
+140,Operational Services,Operational Services,Facilities,Facilities,2025,Approved,Operating Expenditures Net of Recoveries,73.643868
+141,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2025,Approved,Operating Expenditures Net of Recoveries,7.580215
+142,Operational Services,Operational Services,GM - Operational Services,GM - Operational Services,2025,Approved,Operating Expenditures Net of Recoveries,14.158242
+143,Operational Services,Operational Services,Mobility,Mobility,2025,Approved,Operating Expenditures Net of Recoveries,310.396055
+144,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2025,Approved,Operating Expenditures Net of Recoveries,128.038072
+145,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2025,Approved,Operating Expenditures Net of Recoveries,188.70712
+146,Operational Services,Operational Services,Water Services,Water Services,2025,Approved,Operating Expenditures Net of Recoveries,641.716202
+147,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2025,Approved,Operating Expenditures Net of Recoveries,36.096305
+148,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2025,Approved,Operating Expenditures Net of Recoveries,48.986604
+149,Planning & Development Services,Planning & Development Services,Community Planning,Community Planning,2025,Approved,Operating Expenditures Net of Recoveries,51.822376
+150,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2025,Approved,Operating Expenditures Net of Recoveries,66.341901
+151,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2025,Approved,Operating Expenditures Net of Recoveries,184.265697
+152,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2025,Approved,Operating Expenditures Net of Recoveries,28.299568
+153,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2026,Approved,Operating Expenditures Net of Recoveries,678.304839
+154,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2026,Approved,Operating Expenditures Net of Recoveries,154.252577
+155,Community Services,Community Services,Calgary Fire,Calgary Fire,2026,Approved,Operating Expenditures Net of Recoveries,358.864955
+156,Community Services,Community Services,Community Strategies,Community Strategies,2026,Approved,Operating Expenditures Net of Recoveries,85.276686
+157,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2026,Approved,Operating Expenditures Net of Recoveries,149.800845
+158,Community Services,Community Services,GM - Community Services,GM - Community Services,2026,Approved,Operating Expenditures Net of Recoveries,2.994528
+159,Community Services,Community Services,Partnerships,Partnerships,2026,Approved,Operating Expenditures Net of Recoveries,29.29371
+160,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2026,Approved,Operating Expenditures Net of Recoveries,86.777213
+161,Corporate Programs,Corporate Programs,Corporate Programs,Corporate Programs,2026,Approved,Operating Expenditures Net of Recoveries,226.304141
+162,Corporate Services,Chief Administrator’s Office,Chief Administrator’s Office,Chief Administrator's Office,2026,Approved,Operating Expenditures Net of Recoveries,7.545901
+163,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2026,Approved,Operating Expenditures Net of Recoveries,47.261629
+164,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2026,Approved,Operating Expenditures Net of Recoveries,32.538686
+165,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2026,Approved,Operating Expenditures Net of Recoveries,40.045682
+166,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,GM - Corporate Planning & Financial Services,2026,Approved,Operating Expenditures Net of Recoveries,4.698928
+167,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2026,Approved,Operating Expenditures Net of Recoveries,13.818818
+168,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2026,Approved,Operating Expenditures Net of Recoveries,19.479638
+169,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2026,Approved,Operating Expenditures Net of Recoveries,34.710421
+170,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security","GM - Law, Legislative Services & Security",2026,Approved,Operating Expenditures Net of Recoveries,0.849501
+171,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2026,Approved,Operating Expenditures Net of Recoveries,21.316729
+172,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2026,Approved,Operating Expenditures Net of Recoveries,20.300166
+173,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2026,Approved,Operating Expenditures Net of Recoveries,30.697505
+174,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2026,Approved,Operating Expenditures Net of Recoveries,7.128948
+175,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2026,Approved,Operating Expenditures Net of Recoveries,44.413306
+176,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2026,Approved,Operating Expenditures Net of Recoveries,92.869376
+177,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2026,Approved,Operating Expenditures Net of Recoveries,14.774072
+178,Council,Council,Audit Committee,Audit Committee,2026,Approved,Operating Expenditures Net of Recoveries,0.938547
+179,Council,Council,City Auditor's Office,City Auditor's Office,2026,Approved,Operating Expenditures Net of Recoveries,3.9474
+180,Council,Council,Mayor's Office,Mayor's Office,2026,Approved,Operating Expenditures Net of Recoveries,1.849824
+181,Council,Council,Office of the Councillors,Office of the Councillors,2026,Approved,Operating Expenditures Net of Recoveries,8.423913
+182,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2026,Approved,Operating Expenditures Net of Recoveries,14.858958
+183,Infrastructure Services,Infrastructure Services,GM - Infrastructure Services,GM - Infrastructure Services,2026,Approved,Operating Expenditures Net of Recoveries,1.435192
+184,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2026,Approved,Operating Expenditures Net of Recoveries,-0.000001
+185,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2026,Approved,Operating Expenditures Net of Recoveries,12.003169
+186,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2026,Approved,Operating Expenditures Net of Recoveries,11.884055
+187,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2026,Approved,Operating Expenditures Net of Recoveries,46.334775
+188,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2026,Approved,Operating Expenditures Net of Recoveries,19.204322
+189,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2026,Approved,Operating Expenditures Net of Recoveries,574.274135
+190,Operational Services,Operational Services,Facilities,Facilities,2026,Approved,Operating Expenditures Net of Recoveries,78.982172
+191,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2026,Approved,Operating Expenditures Net of Recoveries,7.580213
+192,Operational Services,Operational Services,GM - Operational Services,GM - Operational Services,2026,Approved,Operating Expenditures Net of Recoveries,14.67317
+193,Operational Services,Operational Services,Mobility,Mobility,2026,Approved,Operating Expenditures Net of Recoveries,316.37902
+194,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2026,Approved,Operating Expenditures Net of Recoveries,136.092364
+195,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2026,Approved,Operating Expenditures Net of Recoveries,199.910116
+196,Operational Services,Operational Services,Water Services,Water Services,2026,Approved,Operating Expenditures Net of Recoveries,703.123437
+197,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2026,Approved,Operating Expenditures Net of Recoveries,35.911735
+198,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2026,Approved,Operating Expenditures Net of Recoveries,30.064789
+199,Planning & Development Services,Planning & Development Services,Community Planning,Community Planning,2026,Approved,Operating Expenditures Net of Recoveries,52.285433
+200,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2026,Approved,Operating Expenditures Net of Recoveries,67.856975
+201,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2026,Approved,Operating Expenditures Net of Recoveries,46.832995
+202,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2026,Approved,Operating Expenditures Net of Recoveries,28.592265
+203,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2023,Actual,Capital,121.477882
+204,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2023,Actual,Capital,40.828523
+205,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2023,Actual,Capital,0.392755
+206,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2023,Actual,Capital,0.270166
+207,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2023,Actual,Capital,39.109549
+208,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2023,Actual,Capital,0.009201
+209,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2023,Actual,Capital,1.646084
+210,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2023,Actual,Capital,1.042922
+211,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2023,Actual,Capital,0.40385
+212,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2023,Actual,Capital,250.402129
+213,Operational Services,Operational Services,Mobility,Mobility,2023,Actual,Capital,61.468657
+214,Operational Services,Operational Services,Facilities,Facilities,2023,Actual,Capital,53.963912
+215,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2023,Actual,Capital,67.600731
+216,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2023,Actual,Capital,63.382142
+217,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2023,Actual,Capital,2.910801
+218,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2023,Actual,Capital,6.867857
+219,Operational Services,Operational Services,Water Services,Water Services,2023,Actual,Capital,65.25462
+220,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2023,Actual,Capital,2.631107
+221,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2023,Actual,Capital,6.85781
+222,Community Services,Community Services,Calgary Fire,Calgary Fire,2023,Actual,Capital,21.538172
+223,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2023,Actual,Capital,19.182347
+224,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2023,Actual,Capital,7.319213
+225,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2023,Actual,Capital,23.116143
+226,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2023,Actual,Capital,5.750135
+227,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2023,Actual,Capital,11.091454
+228,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2023,Actual,Capital,7.717846
+229,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2023,Actual,Capital,1.924823
+230,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2023,Actual,Capital,261.18716
+231,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2023,Actual,Capital,11.484835
+232,Community Services,Community Services,Partnerships,Partnerships,2023,Actual,Capital,5.715683
+233,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2023,Actual,Capital,0.154782
+234,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2023,Actual,Capital,43.088524
+235,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2023,Actual,Capital,6.313101
+236,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2023,Actual,Capital,0.00005
+237,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2023,Actual,Capital,249.373665
+238,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2024,Actual,Capital,165.279738
+239,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2024,Actual,Capital,68.169208
+240,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2024,Actual,Capital,1.045866
+241,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2024,Actual,Capital,0.412325
+242,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2024,Actual,Capital,42.669233
+243,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2024,Actual,Capital,0.241976
+244,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2024,Actual,Capital,5.146776
+245,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2024,Actual,Capital,1.019536
+246,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2024,Actual,Capital,0.879847
+247,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2024,Actual,Capital,317.443004
+248,Operational Services,Operational Services,Mobility,Mobility,2024,Actual,Capital,124.877107
+249,Operational Services,Operational Services,Facilities,Facilities,2024,Actual,Capital,80.767237
+250,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2024,Actual,Capital,66.266798
+251,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2024,Actual,Capital,123.718186
+252,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2024,Actual,Capital,4.756694
+253,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2024,Actual,Capital,2.855741
+254,Operational Services,Operational Services,Water Services,Water Services,2024,Actual,Capital,79.500433
+255,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2024,Actual,Capital,2.473255
+256,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2024,Actual,Capital,6.853652
+257,Community Services,Community Services,Calgary Fire,Calgary Fire,2024,Actual,Capital,16.372151
+258,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2024,Actual,Capital,19.283746
+259,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2024,Actual,Capital,7.418044
+260,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2024,Actual,Capital,18.65258
+261,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Corporate Planning & Performance,2024,Actual,Capital,0.009845
+262,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2024,Actual,Capital,2.58834
+263,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2024,Actual,Capital,3.211577
+264,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2024,Actual,Capital,6.65618
+265,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2024,Actual,Capital,9.220556
+266,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2024,Actual,Capital,0.801688
+267,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2024,Actual,Capital,342.097449
+268,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2024,Actual,Capital,19.616248
+269,Community Services,Community Services,Partnerships,Partnerships,2024,Actual,Capital,3.61841
+270,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2024,Actual,Capital,0.322471
+271,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2024,Actual,Capital,53.062109
+272,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2024,Actual,Capital,4.804134
+273,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2024,Actual,Capital,0.004688
+274,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2024,Actual,Capital,327.897002
+275,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2025,Approved,Capital,216.6484
+276,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2025,Approved,Capital,72.074566
+277,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2025,Approved,Capital,2.189448
+278,Corporate Services,Chief Administrator’s Office,Chief Administrator’s Office,Chief Administrator's Office,2025,Approved,Capital,0.190155
+279,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2025,Approved,Capital,0.53537
+280,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2025,Approved,Capital,40.33762
+281,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2025,Approved,Capital,0.25315
+282,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2025,Approved,Capital,6.299301
+283,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2025,Approved,Capital,5.325606
+284,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2025,Approved,Capital,0.193072
+285,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2025,Approved,Capital,509.126084
+286,Operational Services,Operational Services,Mobility,Mobility,2025,Approved,Capital,115.924846
+287,Operational Services,Operational Services,Facilities,Facilities,2025,Approved,Capital,150.818264
+288,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2025,Approved,Capital,85.778961
+289,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2025,Approved,Capital,59.263621
+290,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2025,Approved,Capital,10.401922
+291,Operational Services,Operational Services,Waste & Recycling Services,Waste & Recycling Services,2025,Approved,Capital,3.018372
+292,Operational Services,Operational Services,Water Services,Water Services,2025,Approved,Capital,136.768
+293,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2025,Approved,Capital,4.415499
+294,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2025,Approved,Capital,13.986172
+295,Community Services,Community Services,Calgary Fire,Calgary Fire,2025,Approved,Capital,48.008759
+296,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2025,Approved,Capital,11.493511
+297,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2025,Approved,Capital,0.311487
+298,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2025,Approved,Capital,12.172367
+299,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2025,Approved,Capital,63.98936
+300,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Corporate Planning & Performance,2025,Approved,Capital,-0.000295
+301,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2025,Approved,Capital,19.37785
+302,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2025,Approved,Capital,5.255
+303,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2025,Approved,Capital,21.774313
+304,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2025,Approved,Capital,0.993454
+305,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2025,Approved,Capital,102.701188
+306,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2025,Approved,Capital,421.986744
+307,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2025,Approved,Capital,24.833685
+308,Community Services,Community Services,Partnerships,Partnerships,2025,Approved,Capital,7.768246
+309,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2025,Approved,Capital,2.148734
+310,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2025,Approved,Capital,105.569265
+311,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2025,Approved,Capital,17.353446
+312,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","GM - People, Innovation & Collaboration Services",2025,Approved,Capital,1.000312
+313,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2025,Approved,Capital,384.661336
+314,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2026,Approved,Capital,316.860884
+315,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2026,Approved,Capital,131.172109
+316,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2026,Approved,Capital,0.135
+317,Corporate Services,Chief Administrator’s Office,Chief Administrator’s Office,Chief Administrator's Office,2026,Approved,Capital,0.15
+318,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Law,2026,Approved,Capital,0.086189
+319,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Information Technology,2026,Approved,Capital,27.6908
+320,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Human Resources,2026,Approved,Capital,0.3
+321,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Customer Service & Communications,2026,Approved,Capital,3.849924
+322,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2026,Approved,Capital,4.399199
+323,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2026,Approved,Capital,0.775
+324,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2026,Approved,Capital,717.601872
+325,Operational Services,Operational Services,Mobility,Mobility,2026,Approved,Capital,156.310491
+326,Operational Services,Operational Services,Facilities,Facilities,2026,Approved,Capital,132.643549
+327,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2026,Approved,Capital,106.256214
+328,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2026,Approved,Capital,90.540478
+329,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2026,Approved,Capital,6.169753
+330,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2026,Approved,Capital,3.000533
+331,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2026,Approved,Capital,23.649527
+332,Community Services,Community Services,Calgary Fire,Calgary Fire,2026,Approved,Capital,56.631119
+333,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2026,Approved,Capital,27.656065
+334,Community Services,Community Services,Recreation & Social Programs,Recreation & Social Programs,2026,Approved,Capital,0.6975
+335,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",Corporate Security,2026,Approved,Capital,8.635462
+336,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2026,Approved,Capital,40.84553
+337,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2026,Approved,Capital,3.060916
+338,Planning & Development Services,Planning & Development Services,City & Regional Planning,City & Regional Planning,2026,Approved,Capital,0.25
+339,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2026,Approved,Capital,10.702855
+340,Planning & Development Services,Planning & Development Services,Downtown Strategy,Downtown Strategy,2026,Approved,Capital,1.671147
+341,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2026,Approved,Capital,108.409305
+342,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2026,Approved,Capital,1140.477698
+343,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2026,Approved,Capital,8.988807
+344,Community Services,Community Services,Partnerships,Partnerships,2026,Approved,Capital,3.805
+345,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services",Occupational Health and Safety,2026,Approved,Capital,0.755545
+346,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2026,Approved,Capital,262.599867
+347,Planning & Development Services,Planning & Development Services,GM - Planning & Development Services,GM - Planning & Development Services,2026,Approved,Capital,16.502149
+348,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2026,Approved,Capital,255.075314
+349,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2027,Approved,Capital,274.004706
+350,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2027,Approved,Capital,62.128559
+351,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2027,Approved,Capital,0.135
+352,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Finance,2027,Approved,Capital,0.4
+353,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Supply Management,2027,Approved,Capital,0.671531
+354,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2027,Approved,Capital,717.507827
+355,Operational Services,Operational Services,Facilities,Facilities,2027,Approved,Capital,23.4
+356,Operational Services,Operational Services,Fleet & Inventory,Fleet & Inventory,2027,Approved,Capital,58.83481
+357,Infrastructure Services,Infrastructure Services,Real Estate & Development Services,Real Estate & Development Services,2027,Approved,Capital,165.569245
+358,Corporate Services,"People, Innovation & Collaboration Services","People, Innovation & Collaboration Services","Collaboration, Analytics & Innovation",2027,Approved,Capital,1.906076
+359,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2027,Approved,Capital,3
+360,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2027,Approved,Capital,15.497456
+361,Community Services,Community Services,Calgary Fire,Calgary Fire,2027,Approved,Capital,74.299024
+362,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2027,Approved,Capital,12.5
+363,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2027,Approved,Capital,9.57634
+364,Planning & Development Services,Planning & Development Services,Climate & Environment,Climate & Environment,2027,Approved,Capital,7.4727
+365,Infrastructure Services,Infrastructure Services,Capital Planning & Business Services,Capital Planning & Business Services,2027,Approved,Capital,82.22
+366,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2027,Approved,Capital,306.434
+367,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2027,Approved,Capital,16.229193
+368,Community Services,Community Services,Partnerships,Partnerships,2027,Approved,Capital,0.722794
+369,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2027,Approved,Capital,192.272029
+370,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2027,Approved,Capital,475
+371,Operational Services,Operational Services,Calgary Transit,Calgary Transit,2028,Approved,Capital,81.041671
+372,Civic Partners,Civic Partners,Civic Partners,Civic Partners,2028,Approved,Capital,0.25
+373,Corporate Services,"Law, Legislative Services & Security","Law, Legislative Services & Security",City Clerks Office,2028,Approved,Capital,0.23
+374,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2028,Approved,Capital,294.667502
+375,Corporate Services,Corporate Planning & Financial Services,Corporate Planning & Financial Services,Assessment & Tax,2028,Approved,Capital,3.825
+376,Community Services,Community Services,Emergency Management & Community Safety,Emergency Management & Community Safety,2028,Approved,Capital,5
+377,Operational Services,Operational Services,Parks & Open Spaces,Parks & Open Spaces,2028,Approved,Capital,20.657811
+378,Calgary Police Service,Calgary Police Service,Calgary Police Service,Calgary Police Service,2028,Approved,Capital,10
+379,Planning & Development Services,Planning & Development Services,"Development, Business & Building Services","Development, Business & Building Services",2028,Approved,Capital,0.425949
+380,Infrastructure Services,Infrastructure Services,Utilities Delivery,Utilities Delivery,2028,Approved,Capital,463.965
+381,Infrastructure Services,Infrastructure Services,Project Development,Project Development,2028,Approved,Capital,7.073336
+382,Corporate Services,Chief Operating Office,Chief Operating Office,Chief Housing Office,2028,Approved,Capital,23.199958
+383,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2028,Approved,Capital,530
+384,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2029,Approved,Capital,74.849395
+385,Operational Services,Operational Services,GM - Operational Services,GM - Operational Services,2029,Approved,Capital,202
+386,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2029,Approved,Capital,700
+387,Infrastructure Services,Infrastructure Services,Public Spaces Delivery,Public Spaces Delivery,2030,Approved,Capital,7
+388,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2030,Approved,Capital,761.196065
+389,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2031,Approved,Capital,450.696065
+390,Infrastructure Services,Infrastructure Services,Green Line,Green Line,2032,Approved,Capital,1103.973895
