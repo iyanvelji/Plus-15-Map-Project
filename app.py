@@ -520,10 +520,13 @@ def build_routing_network(roads: pd.DataFrame, plus: pd.DataFrame):
 # -----------------------------------------------------------------------------
 # Pre-build lightweight GeoJSON layers for all 104 links & 102 building hubs
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# Pre-build lightweight GeoJSON layers for all 104 links & 102 building hubs
+# -----------------------------------------------------------------------------
 def make_circle_ring_lonlat(
-    lon: float, lat: float, radius_m: float = 8.5, sides: int = 14
+    lon: float, lat: float, radius_m: float = 14.0, sides: int = 32
 ) -> list[list[float]]:
-    """Create a closed GeoJSON polygon ring [lon, lat] around a building hub."""
+    """Create a smooth closed GeoJSON circle ring [lon, lat] around a building hub."""
     dlon = radius_m / 70_000.0
     dlat = radius_m / 111_139.0
     ring = [
@@ -569,10 +572,16 @@ def build_base_geojson_layers():
         hub_features.append(
             {
                 "type": "Feature",
-                "properties": {"building": b_name},
+                "properties": {
+                    "building": b_name,
+                    "lon": float(lon),
+                    "lat": float(lat),
+                },
                 "geometry": {
                     "type": "Polygon",
-                    "coordinates": [make_circle_ring_lonlat(lon, lat, radius_m=8.5)],
+                    "coordinates": [
+                        make_circle_ring_lonlat(lon, lat, radius_m=14.0, sides=32)
+                    ],
                 },
             }
         )
@@ -811,7 +820,7 @@ def calculate_route(start_text: str, end_text: str) -> dict:
     ]
     return {
         "ok": True,
-        "message": f"Route found ({start['label']} → {end['label']}): approximately {true_distance_m:.0f} m. "
+        "message": f"Route found ({start['label']} → {end['label']}). "
         + " ".join(route_notes),
         "path": path,
         "distance_m": true_distance_m,
@@ -830,6 +839,15 @@ ui.page_opts(title="Calgary Plus 15 Map & Transit Dashboard", fillable=False)
 
 with ui.navset_tab():
     with ui.nav_panel("Calgary Plus 15 Map"):
+        ui.tags.style("""
+            .leaflet-tile-pane {
+                filter: invert(1) hue-rotate(180deg)
+                        brightness(0.88) contrast(0.90);
+            }
+        """)
+
+        from ipyleaflet import Popup
+
         ui.h1("Calgary Plus 15 Map")
         ui.p(
             "Enter an address or a Plus 15 building name, then "
@@ -853,7 +871,8 @@ with ui.navset_tab():
             """
             Building-to-street links are nearest-
             street approximations, not verified entrance locations. Some plus 15 connections may be closed or innaccessible. This map is for general reference only and is not a substitute for official city maps.
-            """
+            """,
+            style="margin-top: 10px;",
         )
 
         @reactive.calc
@@ -861,100 +880,207 @@ with ui.navset_tab():
         def route_result():
             return calculate_route(input.start_loc() or "", input.end_loc() or "")
 
-        @render.text
+        @render.ui
         def route_status():
-            return route_result()["message"]
+            result = route_result()
+            message = result["message"]
 
-        # Create persistent map and consolidated layers ONCE per session.
-        # Clicking Find Route mutates the existing route layers in-place rather
-        # than destroying and recreating the Map widget.
-        dark_basemap = TileLayer(
-            url=(
-                "https://server.arcgisonline.com/ArcGIS/rest/services/"
-                "Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+            if not message:
+                return ui.span("")
+
+            if not result["ok"]:
+                return ui.span(
+                    message,
+                    style="color: #EF4444; font-weight: 600;",
+                )
+
+            return ui.span(message)
+
+        osm_basemap = TileLayer(
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            attribution=(
+                '&copy; <a href="https://www.openstreetmap.org/copyright">'
+                "OpenStreetMap</a> contributors"
             ),
-            attribution="Esri, HERE, Garmin, © OpenStreetMap contributors",
-            name="Dark Canvas",
+            max_zoom=19,
+            name="OpenStreetMap Standard",
         )
+
         plus15_map_widget = Map(
-            basemap=dark_basemap,
+            basemap=osm_basemap,
             center=(51.0472, -114.0680),
             zoom=15,
+            max_zoom=19,
             scroll_wheel_zoom=True,
         )
 
+        # 1. Base Gold Plus 15 Skywalk Footprints
         base_skywalk_layer = GeoJSON(
             data=BASE_SKYWALK_GEOJSON,
             style={
-                "color": "#FFD700",
-                "fillColor": "#D4AF37",
+                "color": "#D6AD60",
+                "fillColor": "#D6AD60",
                 "fillOpacity": 0.82,
                 "opacity": 0.95,
                 "weight": 2.5,
             },
             name="+15 Skywalk Footprints",
         )
-        base_hubs_layer = GeoJSON(
-            data=BASE_HUBS_GEOJSON,
-            style={
-                "color": "#FFD700",
-                "fillColor": "#111827",
-                "fillOpacity": 1.0,
-                "opacity": 1.0,
-                "weight": 2,
-            },
-            name="Building Hubs",
-        )
-        route_polygons_layer = GeoJSON(
+
+        # 2. Dark Blue Route Layer for Street & Access Segments (non-Plus 15)
+        route_street_layer = GeoJSON(
             data=EMPTY_GEOJSON,
             style={
                 "color": "#1E3A8A",
-                "fillColor": "#1E3A8A",
-                "fillOpacity": 0.92,
+                "weight": 8,
                 "opacity": 1.0,
-                "weight": 4,
+                "fillOpacity": 0.0,
             },
-            name="Selected Route Polygons",
-        )
-        route_line_layer = Polyline(
-            locations=[],
-            color="#1E3A8A",
-            weight=8,
-            opacity=1.0,
-            fill=False,
-        )
-        start_marker_layer = CircleMarker(
-            location=(51.0472, -114.0680),
-            radius=0,
-            color="#FFFFFF",
-            fill_color="#16A34A",
-            fill_opacity=0.0,
-            opacity=0.0,
-            weight=2,
-        )
-        end_marker_layer = CircleMarker(
-            location=(51.0472, -114.0680),
-            radius=0,
-            color="#FFFFFF",
-            fill_color="#DC2626",
-            fill_opacity=0.0,
-            opacity=0.0,
-            weight=2,
+            name="Street Route (Dark Blue)",
         )
 
+        # 3. Light Blue Route Layer Where the Plus 15 Overlaps
+        route_plus15_layer = GeoJSON(
+            data=EMPTY_GEOJSON,
+            style={
+                "color": "#00E5FF",
+                "fillColor": "#00E5FF",
+                "fillOpacity": 0.92,
+                "opacity": 1.0,
+                "weight": 7,
+            },
+            name="Plus 15 Route Overlap (Light Blue)",
+        )
+
+        # 4. Crisp Black Circles for Building Hubs (rendered on top & clickable for Building Name)
+        base_hubs_layer = GeoJSON(
+            data=BASE_HUBS_GEOJSON,
+            style={
+                "color": "#D6AD60",
+                "fillColor": "#000000",
+                "fillOpacity": 1.0,
+                "opacity": 1.0,
+                "weight": 2.5,
+            },
+            hover_style={
+                "color": "#00E5FF",
+                "fillColor": "#000000",
+                "fillOpacity": 1.0,
+                "weight": 3.5,
+            },
+            name="Building Hubs",
+        )
+
+        # 5. Clickable Start (Green) and Destination (Red) Endpoint Layers
+        start_marker_layer = GeoJSON(
+            data=EMPTY_GEOJSON,
+            style={
+                "color": "#FFFFFF",
+                "fillColor": "#16A34A",
+                "fillOpacity": 1.0,
+                "opacity": 1.0,
+                "weight": 2.5,
+            },
+            hover_style={
+                "color": "#FFD700",
+                "fillColor": "#16A34A",
+                "fillOpacity": 1.0,
+                "weight": 3.5,
+            },
+            name="Start Marker",
+        )
+        end_marker_layer = GeoJSON(
+            data=EMPTY_GEOJSON,
+            style={
+                "color": "#FFFFFF",
+                "fillColor": "#DC2626",
+                "fillOpacity": 1.0,
+                "opacity": 1.0,
+                "weight": 2.5,
+            },
+            hover_style={
+                "color": "#FFD700",
+                "fillColor": "#DC2626",
+                "fillOpacity": 1.0,
+                "weight": 3.5,
+            },
+            name="Destination Marker",
+        )
+
+        active_hub_popup = {"layer": None}
+
+        def _show_map_popup(lat: float, lon: float, label_text: str):
+            if active_hub_popup["layer"] is not None:
+                try:
+                    plus15_map_widget.remove_layer(active_hub_popup["layer"])
+                except Exception:
+                    pass
+
+            popup_widget = Popup(
+                location=(float(lat), float(lon)),
+                child=HTML(
+                    value=(
+                        f"<div style='font-family:sans-serif;font-weight:700;"
+                        f"font-size:13px;color:#111827;padding:3px 6px;"
+                        f"white-space:nowrap;'>{label_text}</div>"
+                    )
+                ),
+                close_button=True,
+                auto_close=False,
+                close_on_escape_key=True,
+            )
+            active_hub_popup["layer"] = popup_widget
+            plus15_map_widget.add_layer(popup_widget)
+
+        def _on_feature_click(**kwargs):
+            feature = kwargs.get("feature") or {}
+            props = kwargs.get("properties") or feature.get("properties") or {}
+            label_text = props.get("popup_label") or props.get("building")
+            if not label_text:
+                return
+            lon = props.get("lon")
+            lat = props.get("lat")
+            if lon is None or lat is None:
+                b_name = props.get("building")
+                lon, lat = BUILDING_COORDS.get(b_name, (-114.0680, 51.0472))
+            _show_map_popup(float(lat), float(lon), str(label_text))
+
+        def _on_route_line_click(**kwargs):
+            # If the user clicks slightly off-center on the light blue route line near a dot,
+            # snap to the nearest building hub within 30 meters and open its popup.
+            coords = kwargs.get("coordinates")
+            if not coords or len(coords) < 2:
+                return
+            click_lat, click_lon = float(coords[0]), float(coords[1])
+            best_name = None
+            best_dist = 30.0
+            for b_name, (b_lon, b_lat) in BUILDING_COORDS.items():
+                d = distance_m((click_lon, click_lat), (b_lon, b_lat))
+                if d < best_dist:
+                    best_dist = d
+                    best_name = (b_name, b_lat, b_lon)
+            if best_name is not None:
+                _show_map_popup(best_name[1], best_name[2], best_name[0])
+
+        base_hubs_layer.on_click(_on_feature_click)
+        start_marker_layer.on_click(_on_feature_click)
+        end_marker_layer.on_click(_on_feature_click)
+        route_plus15_layer.on_click(_on_route_line_click)
+        route_street_layer.on_click(_on_route_line_click)
+
+        # Add layers in bottom-to-top order
         plus15_map_widget.add_layer(base_skywalk_layer)
+        plus15_map_widget.add_layer(route_street_layer)
+        plus15_map_widget.add_layer(route_plus15_layer)
         plus15_map_widget.add_layer(base_hubs_layer)
-        plus15_map_widget.add_layer(route_polygons_layer)
-        plus15_map_widget.add_layer(route_line_layer)
         plus15_map_widget.add_layer(start_marker_layer)
         plus15_map_widget.add_layer(end_marker_layer)
         plus15_map_widget.add_control(
             LegendControl(
                 {
-                    "+15 Skywalk Link": "#FFD700",
-                    "Selected Route": "#1E3A8A",
-                    "Start": "#16A34A",
-                    "Destination": "#DC2626",
+                    "+15 Skywalk Link": "#D6AD60",
+                    "Route on +15": "#00E5FF",
+                    "Route on Street": "#1E3A8A",
                 },
                 name="Calgary Walking Network",
                 position="bottomright",
@@ -965,75 +1091,135 @@ with ui.navset_tab():
         def _update_route_on_map():
             result = route_result()
             if not result.get("ok") or len(result.get("path", [])) < 2:
-                route_line_layer.locations = []
-                route_polygons_layer.data = EMPTY_GEOJSON
-                start_marker_layer.radius = 0
-                start_marker_layer.opacity = 0.0
-                start_marker_layer.fill_opacity = 0.0
-                end_marker_layer.radius = 0
-                end_marker_layer.opacity = 0.0
-                end_marker_layer.fill_opacity = 0.0
+                route_street_layer.data = EMPTY_GEOJSON
+                route_plus15_layer.data = EMPTY_GEOJSON
+                start_marker_layer.data = EMPTY_GEOJSON
+                end_marker_layer.data = EMPTY_GEOJSON
                 return
 
             route_path = result["path"]
             route_positions = []
-            highlight_features = []
+            street_features = []
+            plus15_overlap_features = []
+
+            def node_lonlat(node):
+                if node[0] == "road":
+                    return ROAD_COORDS[node]
+                if node[0] == "building":
+                    return BUILDING_COORDS[node[1]]
+                return result["endpoint_coords"][node]
 
             for node in route_path:
-                if node[0] == "road":
-                    lon, lat = ROAD_COORDS[node]
-                elif node[0] == "building":
-                    lon, lat = BUILDING_COORDS[node[1]]
-                    highlight_features.append(
-                        {
-                            "type": "Feature",
-                            "properties": {"building": node[1]},
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    make_circle_ring_lonlat(lon, lat, radius_m=11.0)
-                                ],
-                            },
-                        }
-                    )
-                elif node[0] == "endpoint":
-                    lon, lat = result["endpoint_coords"][node]
-                else:
-                    continue
+                lon, lat = node_lonlat(node)
                 route_positions.append((lat, lon))
 
             for node_a, node_b in zip(route_path, route_path[1:]):
+                lon_a, lat_a = node_lonlat(node_a)
+                lon_b, lat_b = node_lonlat(node_b)
+
                 if node_a[0] == "building" and node_b[0] == "building":
                     link = PLUS15_EDGE_LOOKUP.get(frozenset((node_a, node_b)))
                     if link:
                         ring = [[lon, lat] for lon, lat in link["polygon"]]
                         if ring[0] != ring[-1]:
                             ring.append(ring[0])
-                        highlight_features.append(
+                        plus15_overlap_features.append(
                             {
                                 "type": "Feature",
                                 "properties": {},
                                 "geometry": {"type": "Polygon", "coordinates": [ring]},
                             }
                         )
+                        plus15_overlap_features.append(
+                            {
+                                "type": "Feature",
+                                "properties": {},
+                                "geometry": {
+                                    "type": "LineString",
+                                    "coordinates": [[lon_a, lat_a], [lon_b, lat_b]],
+                                },
+                            }
+                        )
+                        continue
 
-            route_line_layer.locations = route_positions
-            route_polygons_layer.data = {
+                # Non-Plus 15 segment (street walking or building-to-street connector) -> Dark Blue
+                street_features.append(
+                    {
+                        "type": "Feature",
+                        "properties": {},
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": [[lon_a, lat_a], [lon_b, lat_b]],
+                        },
+                    }
+                )
+
+            # 1. Update route layers first
+            route_street_layer.data = {
                 "type": "FeatureCollection",
-                "features": highlight_features,
+                "features": street_features,
+            }
+            route_plus15_layer.data = {
+                "type": "FeatureCollection",
+                "features": plus15_overlap_features,
             }
 
+            # 2. Re-assign base_hubs_layer.data AFTER the route layers so Leaflet appends
+            # all black building circles ON TOP of the light blue line in the SVG DOM
+            base_hubs_layer.data = {
+                "type": "FeatureCollection",
+                "features": list(BASE_HUBS_GEOJSON["features"]),
+            }
+
+            # 3. Update clickable Start and Destination markers LAST so they sit at the very top
             start_lon, start_lat = result["start"]["coord"]
             end_lon, end_lat = result["end"]["coord"]
-            start_marker_layer.location = (start_lat, start_lon)
-            start_marker_layer.radius = 9
-            start_marker_layer.opacity = 1.0
-            start_marker_layer.fill_opacity = 1.0
+            start_label = result["start"]["label"]
+            end_label = result["end"]["label"]
 
-            end_marker_layer.location = (end_lat, end_lon)
-            end_marker_layer.radius = 9
-            end_marker_layer.opacity = 1.0
-            end_marker_layer.fill_opacity = 1.0
+            start_marker_layer.data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "popup_label": f"Start: {start_label}",
+                            "lon": float(start_lon),
+                            "lat": float(start_lat),
+                        },
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                make_circle_ring_lonlat(
+                                    start_lon, start_lat, radius_m=16.0, sides=32
+                                )
+                            ],
+                        },
+                    }
+                ],
+            }
+
+            end_marker_layer.data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "popup_label": f"Destination: {end_label}",
+                            "lon": float(end_lon),
+                            "lat": float(end_lat),
+                        },
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                make_circle_ring_lonlat(
+                                    end_lon, end_lat, radius_m=16.0, sides=32
+                                )
+                            ],
+                        },
+                    }
+                ],
+            }
 
             if route_positions:
                 plus15_map_widget.center = (
@@ -1108,139 +1294,121 @@ with ui.navset_tab():
             "Zoo": (51.0472, -114.0256),
         }
 
-        with ui.card(full_screen=True, height="350px"):
+        with ui.card(full_screen=True, height="420px"):
             ui.card_header("2025 C-Train Boardings")
 
-            @render_widget
-            def boarding_map():
-                from ipyleaflet import CircleMarker as LeafletCircleMarker
-                from ipyleaflet import Map as LeafletMap
-
-                map_widget = LeafletMap(
-                    center=(51.0447, -114.0719), zoom=12, scroll_wheel_zoom=True
-                )
-                df = ctrain_df.copy()
-                if df.empty:
-                    return map_widget
-
-                station_col = "station" if "station" in df.columns else df.columns[0]
-                boardings_col = (
-                    "boardings" if "boardings" in df.columns else df.columns[1]
-                )
-                df["station_clean"] = df[station_col].astype(str).str.strip()
-                df["boardings_clean"] = pd.to_numeric(
-                    df[boardings_col].astype(str).str.replace(",", "", regex=False),
-                    errors="coerce",
-                ).fillna(0)
-                min_b = max(1, float(df["boardings_clean"].min()))
-                max_b = max(min_b + 1, float(df["boardings_clean"].max()))
-
-                for _, row in df.iterrows():
-                    station = row["station_clean"]
-                    boardings = int(row["boardings_clean"])
-                    coords = CTRAIN_COORDS.get(station)
-                    if not coords:
-                        continue
-                    norm = (math.sqrt(max(0, boardings)) - math.sqrt(min_b)) / (
-                        math.sqrt(max_b) - math.sqrt(min_b)
-                    )
-                    radius = int(3 + max(0, norm) * 10)
-                    color = (
-                        "#2A4EB1"
-                        if boardings >= 2_000_000
-                        else ("#2152D8" if boardings >= 500_000 else "#0D277A")
-                    )
-                    marker = LeafletCircleMarker(
-                        location=coords,
-                        radius=radius,
-                        color="#000000",
-                        fill_color=color,
-                        fill_opacity=0.7,
-                        weight=1,
-                    )
-                    marker.popup = HTML(
-                        value=f"<b>{station}</b><br/>Annual Boardings: {boardings:,}"
-                    )
-                    map_widget.add_layer(marker)
-                return map_widget
-
-        summary = ridership_df.copy()
-        if not summary.empty and {"year", "ridership"}.issubset(summary.columns):
-            summary["year"] = pd.to_numeric(summary["year"], errors="coerce")
-            summary["ridership"] = pd.to_numeric(summary["ridership"], errors="coerce")
-            summary = summary.dropna(subset=["year", "ridership"])
-            annual = (
-                summary.groupby("year", as_index=False)["ridership"]
-                .sum()
-                .sort_values("year")
-            )
-        else:
-            annual = pd.DataFrame(columns=["year", "ridership"])
-
-        if not annual.empty:
-            min_year = int(annual["year"].min())
-            max_year = int(annual["year"].max())
-        else:
-            min_year, max_year = 2000, 2025
-
-        with ui.card(full_screen=True, height="350px"):
-            ui.card_header("Annual Transit Ridership")
-            ui.input_slider(
-                "year_range",
-                "Filter Years:",
-                min=min_year,
-                max=max_year,
-                value=[min_year, max_year],
-                sep="",
-            )
-
             @render.ui
-            def render_plot():
-                if annual.empty:
-                    return ui.p("Ridership data is currently unavailable.")
+            def boarding_map():
+                import json
 
-                start_year, end_year = input.year_range()
-                df = annual[
-                    (annual["year"] >= start_year) & (annual["year"] <= end_year)
-                ].copy()
-                if df.empty:
-                    return ui.p("No ridership records match this year range.")
+                df = ctrain_df.copy()
+                markers_data = []
 
-                df["year_str"] = df["year"].astype(int).astype(str)
-                palette = ["#40c2f3", "#409ff3", "#407cf3", "#205dc7"]
-                df["color"] = [palette[i % len(palette)] for i in range(len(df))]
-                source = ColumnDataSource(df)
-                plot = figure(
-                    title="Annual Transit Ridership",
-                    x_range=df["year_str"].tolist(),
-                    x_axis_label="Year",
-                    y_axis_label="Total Ridership",
-                    height=350,
-                    sizing_mode="stretch_width",
-                    tools="",
-                )
-                plot.vbar(
-                    x="year_str",
-                    top="ridership",
-                    width=0.6,
-                    source=source,
-                    fill_color="color",
-                    line_color="white",
-                    line_width=1,
-                    hover_fill_color="#18418c",
-                    hover_line_color="#40c2f3",
-                )
-                plot.add_tools(HoverTool(tooltips="Year @year: @ridership{0,0}"))
-                plot.xaxis.major_label_orientation = 1
-                plot.xgrid.grid_line_color = None
-                plot.ygrid.grid_line_dash = "dashed"
-                plot.ygrid.grid_line_alpha = 0.4
-                plot.outline_line_color = None
-                plot.background_fill_color = "#ffffff"
-                html_content = file_html(plot, CDN, "Transit Ridership Plot")
+                if not df.empty:
+                    station_col = (
+                        "station" if "station" in df.columns else df.columns[0]
+                    )
+                    boardings_col = (
+                        "boardings" if "boardings" in df.columns else df.columns[1]
+                    )
+                    df["station_clean"] = df[station_col].astype(str).str.strip()
+                    df["boardings_clean"] = pd.to_numeric(
+                        df[boardings_col].astype(str).str.replace(",", "", regex=False),
+                        errors="coerce",
+                    ).fillna(0)
+
+                    # Case-insensitive fallback so minor casing differences never skip a station
+                    coords_lookup = {k.casefold(): v for k, v in CTRAIN_COORDS.items()}
+
+                    min_b = max(1.0, float(df["boardings_clean"].min()))
+                    max_b = max(min_b + 1.0, float(df["boardings_clean"].max()))
+
+                    for _, row in df.iterrows():
+                        station = row["station_clean"]
+                        boardings = int(row["boardings_clean"])
+                        coords = CTRAIN_COORDS.get(station) or coords_lookup.get(
+                            station.casefold()
+                        )
+                        if not coords:
+                            continue
+                        norm = (math.sqrt(max(0, boardings)) - math.sqrt(min_b)) / (
+                            math.sqrt(max_b) - math.sqrt(min_b)
+                        )
+                        radius = int(3 + max(0.0, norm) * 10)
+                        color = (
+                            "#2A4EB1"
+                            if boardings >= 2_000_000
+                            else ("#2152D8" if boardings >= 500_000 else "#0D277A")
+                        )
+                        markers_data.append(
+                            {
+                                "station": station,
+                                "lat": float(coords[0]),
+                                "lon": float(coords[1]),
+                                "boardings": f"{boardings:,}",
+                                "radius": radius,
+                                "color": color,
+                            }
+                        )
+
+                # Draw largest circles first so smaller overlapping downtown circles sit on top
+                markers_data.sort(key=lambda x: x["radius"], reverse=True)
+                markers_json = json.dumps(markers_data)
+
+                html_doc = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    html, body, #ctrain-map {{
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f172a;
+      overflow: hidden;
+      font-family: sans-serif;
+    }}
+    .leaflet-tile-pane {{
+      filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.90);
+    }}
+  </style>
+</head>
+<body>
+  <div id="ctrain-map"></div>
+  <script>
+    const map = L.map('ctrain-map', {{
+      center: [51.0447, -114.0719],
+      zoom: 11,
+      scrollWheelZoom: true
+    }});
+
+    L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }}).addTo(map);
+
+    const stations = {markers_json};
+    stations.forEach(st => {{
+      const marker = L.circleMarker([st.lat, st.lon], {{
+        radius: st.radius,
+        color: '#000000',
+        fillColor: st.color,
+        fillOpacity: 0.7,
+        weight: 1
+      }}).addTo(map);
+
+      marker.bindPopup('<b>' + st.station + '</b><br/>Annual Boardings: ' + st.boardings);
+    }});
+  </script>
+</body>
+</html>"""
+
                 return ui.tags.iframe(
-                    srcdoc=html_content,
-                    style="width: 100%; height: 320px; border: none; overflow: hidden;",
+                    srcdoc=html_doc,
+                    style="width: 100%; height: 350px; border: none; overflow: hidden; border-radius: 8px;",
                 )
 
         budget_df = transit_datasets["budget"]
@@ -1488,7 +1656,7 @@ with ui.navset_tab():
     <body>
     <div id="center-kpi">
         <div style="color: #40c2f3; font-size: 11px; font-weight: bold; letter-spacing: 0.5px;">
-        {latest_year} TOTAL
+        {latest_year} SO FAR
         </div>
         <div style="color: #f8fafc; font-size: 26px; font-weight: bold; margin-top: 2px;">
         {center_total}
@@ -1982,6 +2150,254 @@ with ui.navset_tab():
                     style="width: 100%; height: 420px; border: none; overflow: hidden; border-radius: 8px;",
                 )
 
+        # Prepare 10 most recent complete calendar years (2015–2024) for the Bump Chart
+        bump_df = ridership_df.copy()
+        bump_fare_cols = {
+            "adult_low_income_monthly_pass_ridership": (
+                "Adult Low Income Pass",
+                "#10B981",
+            ),
+            "adult_monthly_pass_ridership": ("Adult Monthly Pass", "#00E5FF"),
+            "adult_cash_single_ticket_ride_ridership": (
+                "Adult Cash / Single Ticket",
+                "#40c2f3",
+            ),
+            "u_pass_ridership": ("U-Pass", "#407cf3"),
+            "youth_monthly_pass_ridership": ("Youth Monthly Pass", "#205dc7"),
+        }
+
+        if not bump_df.empty and {"year", *bump_fare_cols.keys()}.issubset(
+            bump_df.columns
+        ):
+            bump_df["year"] = pd.to_numeric(bump_df["year"], errors="coerce")
+            for col in bump_fare_cols:
+                bump_df[col] = pd.to_numeric(bump_df[col], errors="coerce").fillna(0.0)
+            bump_df = bump_df[
+                (bump_df["year"] >= 2015) & (bump_df["year"] <= 2024)
+            ].copy()
+            bump_df["year"] = bump_df["year"].astype(int)
+            bump_annual = (
+                bump_df.groupby("year", as_index=False)[list(bump_fare_cols.keys())]
+                .sum()
+                .sort_values("year")
+                .tail(10)
+                .reset_index(drop=True)
+            )
+        else:
+            bump_annual = pd.DataFrame(columns=["year", *bump_fare_cols.keys()])
+
+        if not bump_annual.empty:
+            min_bump_year = int(bump_annual["year"].min())
+            max_bump_year = int(bump_annual["year"].max())
+            default_start_bump_year = 2021
+        else:
+            min_bump_year, max_bump_year, default_start_bump_year = (
+                2015,
+                2024,
+                2015,
+            )
+
+        with ui.card(full_screen=True, height="560px"):
+            ui.card_header("Fare Type Popularity")
+
+            ui.input_slider(
+                "bump_years",
+                "Filter Years:",
+                min=min_bump_year,
+                max=max_bump_year,
+                value=[default_start_bump_year, max_bump_year],
+                sep="",
+                step=1,
+            )
+
+            @render.ui
+            def render_fare_bump_chart():
+                import json
+
+                if bump_annual.empty:
+                    return ui.p("Fare type ranking data is currently unavailable.")
+
+                start_yr, end_yr = input.bump_years()
+                # Enforce a minimum of 2 years and a maximum of 10 years
+                if end_yr - start_yr < 1:
+                    if end_yr - 1 >= min_bump_year:
+                        start_yr = end_yr - 1
+                    else:
+                        end_yr = min(max_bump_year, start_yr + 1)
+
+                df_sub = bump_annual[
+                    (bump_annual["year"] >= start_yr) & (bump_annual["year"] <= end_yr)
+                ].reset_index(drop=True)
+
+                if df_sub.empty:
+                    return ui.p("No records match this year range.")
+
+                cols_list = list(bump_fare_cols.keys())
+                ranks_df = (
+                    df_sub[cols_list]
+                    .rank(axis=1, ascending=False, method="first")
+                    .astype(int)
+                )
+
+                years_json = json.dumps(df_sub["year"].astype(str).tolist())
+                last_idx = len(df_sub) - 1
+
+                series_list = []
+                for col, (label, color) in bump_fare_cols.items():
+                    points = []
+                    for i in range(len(df_sub)):
+                        rk = int(ranks_df.loc[i, col])
+                        rides = int(round(float(df_sub.loc[i, col])))
+                        pt = {
+                            "y": rk,
+                            "rides": rides,
+                            "millions": f"{rides / 1_000_000:.2f}M",
+                        }
+                        if i == last_idx:
+                            pt["dataLabels"] = {
+                                "enabled": True,
+                                "useHTML": True,
+                                "align": "left",
+                                "verticalAlign": "middle",
+                                "x": 16,
+                                "y": 0,
+                                "overflow": "allow",
+                                "crop": False,
+                                "formatter": None,
+                                "format": (
+                                    f"<div style='background:#1e293b;color:#f8fafc;"
+                                    f"border:2px solid {color};border-radius:6px;"
+                                    f"padding:4px 10px;font-size:11px;font-weight:700;"
+                                    f"white-space:nowrap;letter-spacing:0.4px;'>"
+                                    f"{rk}. {label.upper()}</div>"
+                                ),
+                            }
+                        points.append(pt)
+
+                    series_list.append(
+                        {
+                            "name": label,
+                            "color": color,
+                            "data": points,
+                        }
+                    )
+
+                series_json = json.dumps(series_list)
+
+                html_doc = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <style>
+    html, body, #bump-container {{
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #0f172a;
+        overflow: hidden;
+        font-family: sans-serif;
+    }}
+    </style>
+</head>
+<body>
+    <div id="bump-container"></div>
+    <script>
+    Highcharts.chart('bump-container', {{
+        chart: {{
+        type: 'spline',
+        backgroundColor: '#0f172a',
+        marginLeft: 65,
+        marginRight: 235,
+        marginTop: 75,
+        marginBottom: 75
+        }},
+        title: {{
+        text: 'Fare Type Popularity',
+        style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
+        }},
+        subtitle: {{
+        text: null
+        }},
+        xAxis: {{
+        categories: {years_json},
+        opposite: true,
+        lineWidth: 0,
+        tickWidth: 0,
+        gridLineWidth: 0,
+        labels: {{
+            style: {{ color: '#f8fafc', fontSize: '12px', fontWeight: 'bold' }}
+        }}
+        }},
+        yAxis: {{
+        reversed: true,
+        min: 1,
+        max: 5,
+        tickInterval: 1,
+        startOnTick: true,
+        endOnTick: true,
+        gridLineWidth: 0,
+        title: {{ text: null }},
+        labels: {{
+            useHTML: true,
+            x: -12,
+            formatter: function() {{
+            return '<div style="background:#1e293b;color:#f8fafc;border:2px solid #40c2f3;' +
+                    'border-radius:6px;padding:3px 9px;font-weight:700;font-size:12px;">' +
+                    this.value + '</div>';
+            }}
+        }}
+        }},
+        legend: {{
+        enabled: true,
+        itemStyle: {{ color: '#f8fafc', fontSize: '11px', fontWeight: '600' }},
+        itemHoverStyle: {{ color: '#00E5FF' }}
+        }},
+        tooltip: {{
+        backgroundColor: '#1e293b',
+        borderColor: '#00E5FF',
+        borderWidth: 1.5,
+        style: {{ color: '#f8fafc', fontSize: '12px' }},
+        formatter: function() {{
+            const suffixes = {{ 1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th' }};
+            const ord = this.y + (suffixes[this.y] || 'th');
+            return '<b>Year:</b> ' + this.x + '<br/>' +
+                    '<b>Fare Type:</b> ' + this.series.name + '<br/>' +
+                    '<b>Popularity Rank:</b> ' + ord + ' most used<br/>' +
+                    '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.point.rides, 0, '.', ',') +
+                    ' (' + this.point.millions + ')';
+        }}
+        }},
+        plotOptions: {{
+        spline: {{
+            lineWidth: 5,
+            marker: {{
+            enabled: true,
+            symbol: 'circle',
+            radius: 8,
+            lineWidth: 2,
+            lineColor: '#0f172a'
+            }},
+            states: {{
+            hover: {{
+                lineWidthPlus: 2
+            }}
+            }}
+        }}
+        }},
+        credits: {{ enabled: false }},
+        series: {series_json}
+    }});
+    </script>
+</body>
+</html>"""
+
+                return ui.tags.iframe(
+                    srcdoc=html_doc,
+                    style="width: 100%; height: 430px; border: none; overflow: hidden; border-radius: 8px;",
+                )
+
         with ui.card(full_screen=True, height="560px"):
             ui.card_header("Monthly Ridership Seasonality")
 
@@ -2109,7 +2525,7 @@ with ui.navset_tab():
           distance: 18
         }}
       }},
-      yAxis: {{
+        yAxis: {{
         min: 4500000,
         max: 9000000,
         tickInterval: 1500000,
@@ -2117,7 +2533,12 @@ with ui.navset_tab():
         gridLineColor: '#1e293b',
         gridLineDashStyle: 'Dash',
         labels: {{
-          style: {{ color: '#94a3b8', fontSize: '10px' }},
+          style: {{
+            color: '#f8fafc',
+            fontSize: '10px',
+            fontWeight: 'bold',
+            textOutline: '1px #0f172a'
+          }},
           formatter: function() {{
             return (this.value / 1000000).toFixed(1) + 'M';
           }}
@@ -2208,248 +2629,140 @@ with ui.navset_tab():
                     style="width: 100%; height: 480px; border: none; overflow: hidden; border-radius: 8px;",
                 )
 
-        # Prepare 10 most recent complete calendar years (2015–2024) for the Bump Chart
-        bump_df = ridership_df.copy()
-        bump_fare_cols = {
-            "adult_low_income_monthly_pass_ridership": (
-                "Adult Low Income Pass",
-                "#10B981",
-            ),
-            "adult_monthly_pass_ridership": ("Adult Monthly Pass", "#00E5FF"),
-            "adult_cash_single_ticket_ride_ridership": (
-                "Adult Cash / Single Ticket",
-                "#40c2f3",
-            ),
-            "u_pass_ridership": ("U-Pass", "#407cf3"),
-            "youth_monthly_pass_ridership": ("Youth Monthly Pass", "#205dc7"),
-        }
-
-        if not bump_df.empty and {"year", *bump_fare_cols.keys()}.issubset(
-            bump_df.columns
-        ):
-            bump_df["year"] = pd.to_numeric(bump_df["year"], errors="coerce")
-            for col in bump_fare_cols:
-                bump_df[col] = pd.to_numeric(bump_df[col], errors="coerce").fillna(0.0)
-            bump_df = bump_df[
-                (bump_df["year"] >= 2015) & (bump_df["year"] <= 2024)
-            ].copy()
-            bump_df["year"] = bump_df["year"].astype(int)
-            bump_annual = (
-                bump_df.groupby("year", as_index=False)[list(bump_fare_cols.keys())]
-                .sum()
+        summary = ridership_df.copy()
+        if not summary.empty and {"year", "ridership"}.issubset(summary.columns):
+            summary["year"] = pd.to_numeric(summary["year"], errors="coerce")
+            summary["ridership"] = pd.to_numeric(summary["ridership"], errors="coerce")
+            summary = summary.dropna(subset=["year", "ridership"])
+            summary["year"] = summary["year"].astype(int)
+            # Filter to complete 12-month calendar years (2007–2024, excluding partial 2025)
+            annual = (
+                summary.groupby("year", as_index=False)
+                .agg(ridership=("ridership", "sum"), months=("ridership", "count"))
+                .query("months == 12")
                 .sort_values("year")
-                .tail(10)
                 .reset_index(drop=True)
             )
+        if not annual.empty:
+            min_year = int(annual["year"].min())
+            max_year = int(annual["year"].max())
+            default_start_year = max(
+                min_year, max_year - 6
+            )  # Default: last 7 complete years (2018–2024)
         else:
-            bump_annual = pd.DataFrame(columns=["year", *bump_fare_cols.keys()])
+            annual = pd.DataFrame(columns=["year", "ridership"])
 
-        if not bump_annual.empty:
-            min_bump_year = int(bump_annual["year"].min())
-            max_bump_year = int(bump_annual["year"].max())
-            default_start_bump_year = 2021
+        if not annual.empty:
+            min_year = int(annual["year"].min())
+            max_year = int(annual["year"].max())
+            default_start_year = max(
+                min_year, max_year - 6
+            )  # Default: last 7 complete years (2018–2024)
         else:
-            min_bump_year, max_bump_year, default_start_bump_year = 2015, 2024, 2015
+            min_year, max_year, default_start_year = 2007, 2024, 2018
 
-        with ui.card(full_screen=True, height="560px"):
-            ui.card_header("Fare Type Popularity")
-
+        with ui.card(full_screen=True, height="520px"):
+            ui.card_header("Annual Transit Ridership")
             ui.input_slider(
-                "bump_years",
+                "year_range",
                 "Filter Years:",
-                min=min_bump_year,
-                max=max_bump_year,
-                value=[default_start_bump_year, max_bump_year],
+                min=min_year,
+                max=max_year,
+                value=[default_start_year, max_year],
                 sep="",
                 step=1,
             )
 
             @render.ui
-            def render_fare_bump_chart():
-                import json
+            def render_plot():
+                from bokeh.models import PrintfTickFormatter
 
-                if bump_annual.empty:
-                    return ui.p("Fare type ranking data is currently unavailable.")
+                if annual.empty:
+                    return ui.p("Ridership data is currently unavailable.")
 
-                start_yr, end_yr = input.bump_years()
-                # Enforce a minimum of 2 years and a maximum of 10 years
-                if end_yr - start_yr < 1:
-                    if end_yr - 1 >= min_bump_year:
-                        start_yr = end_yr - 1
-                    else:
-                        end_yr = min(max_bump_year, start_yr + 1)
+                start_year, end_year = input.year_range()
+                df = annual[
+                    (annual["year"] >= start_year) & (annual["year"] <= end_year)
+                ].copy()
+                if df.empty:
+                    return ui.p("No ridership records match this year range.")
 
-                df_sub = bump_annual[
-                    (bump_annual["year"] >= start_yr) & (bump_annual["year"] <= end_yr)
-                ].reset_index(drop=True)
+                df["year_str"] = df["year"].astype(int).astype(str)
+                df["ridership_m"] = df["ridership"] / 1_000_000.0
+                source = ColumnDataSource(df)
 
-                if df_sub.empty:
-                    return ui.p("No records match this year range.")
+                plot = figure(
+                    title="Annual Transit Ridership",
+                    x_range=df["year_str"].tolist(),
+                    x_axis_label="Year",
+                    y_axis_label="Total Ridership",
+                    height=360,
+                    sizing_mode="stretch_width",
+                    tools="",
+                    toolbar_location=None,
+                )
+                plot.toolbar.logo = None
 
-                cols_list = list(bump_fare_cols.keys())
-                ranks_df = (
-                    df_sub[cols_list]
-                    .rank(axis=1, ascending=False, method="first")
-                    .astype(int)
+                plot.vbar(
+                    x="year_str",
+                    top="ridership_m",
+                    width=0.6,
+                    source=source,
+                    fill_color="#00E5FF",
+                    line_color="#0f172a",
+                    line_width=1.5,
+                    hover_fill_color="#10B981",
+                    hover_line_color="#f8fafc",
                 )
 
-                years_json = json.dumps(df_sub["year"].astype(str).tolist())
-                last_idx = len(df_sub) - 1
-
-                series_list = []
-                for col, (label, color) in bump_fare_cols.items():
-                    points = []
-                    for i in range(len(df_sub)):
-                        rk = int(ranks_df.loc[i, col])
-                        rides = int(round(float(df_sub.loc[i, col])))
-                        pt = {
-                            "y": rk,
-                            "rides": rides,
-                            "millions": f"{rides / 1_000_000:.2f}M",
-                        }
-                        if i == last_idx:
-                            pt["dataLabels"] = {
-                                "enabled": True,
-                                "useHTML": True,
-                                "align": "left",
-                                "verticalAlign": "middle",
-                                "x": 16,
-                                "y": 0,
-                                "overflow": "allow",
-                                "crop": False,
-                                "formatter": None,
-                                "format": (
-                                    f"<div style='background:#1e293b;color:#f8fafc;"
-                                    f"border:2px solid {color};border-radius:6px;"
-                                    f"padding:4px 10px;font-size:11px;font-weight:700;"
-                                    f"white-space:nowrap;letter-spacing:0.4px;'>"
-                                    f"{rk}. {label.upper()}</div>"
-                                ),
-                            }
-                        points.append(pt)
-
-                    series_list.append(
-                        {
-                            "name": label,
-                            "color": color,
-                            "data": points,
-                        }
+                plot.add_tools(
+                    HoverTool(
+                        tooltips=[
+                            ("Year", "@year"),
+                            (
+                                "Annual Ridership",
+                                "@ridership{0,0} (@ridership_m{0.00}M)",
+                            ),
+                        ]
                     )
+                )
 
-                series_json = json.dumps(series_list)
+                # Dark blue theme (#0f172a) with NO gridlines, matching the rest of the dashboard
+                plot.background_fill_color = "#0f172a"
+                plot.border_fill_color = "#0f172a"
+                plot.outline_line_color = None
+                plot.y_range.start = 0
 
-                html_doc = f"""<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <script src="https://code.highcharts.com/highcharts.js"></script>
-  <style>
-    html, body, #bump-container {{
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #0f172a;
-      overflow: hidden;
-      font-family: sans-serif;
-    }}
-  </style>
-</head>
-<body>
-  <div id="bump-container"></div>
-  <script>
-    Highcharts.chart('bump-container', {{
-      chart: {{
-        type: 'spline',
-        backgroundColor: '#0f172a',
-        marginLeft: 65,
-        marginRight: 235,
-        marginTop: 75,
-        marginBottom: 75
-      }},
-      title: {{
-        text: 'Fare Type Popularity',
-        style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
-      }},
-      subtitle: {{
-        text: null
-      }},
-      xAxis: {{
-        categories: {years_json},
-        opposite: true,
-        lineWidth: 0,
-        tickWidth: 0,
-        gridLineWidth: 0,
-        labels: {{
-          style: {{ color: '#f8fafc', fontSize: '12px', fontWeight: 'bold' }}
-        }}
-      }},
-      yAxis: {{
-        reversed: true,
-        min: 1,
-        max: 5,
-        tickInterval: 1,
-        startOnTick: true,
-        endOnTick: true,
-        gridLineWidth: 0,
-        title: {{ text: null }},
-        labels: {{
-          useHTML: true,
-          x: -12,
-          formatter: function() {{
-            return '<div style="background:#1e293b;color:#f8fafc;border:2px solid #40c2f3;' +
-                   'border-radius:6px;padding:3px 9px;font-weight:700;font-size:12px;">' +
-                   this.value + '</div>';
-          }}
-        }}
-      }},
-      legend: {{
-        enabled: true,
-        itemStyle: {{ color: '#f8fafc', fontSize: '11px', fontWeight: '600' }},
-        itemHoverStyle: {{ color: '#00E5FF' }}
-      }},
-      tooltip: {{
-        backgroundColor: '#1e293b',
-        borderColor: '#00E5FF',
-        borderWidth: 1.5,
-        style: {{ color: '#f8fafc', fontSize: '12px' }},
-        formatter: function() {{
-          const suffixes = {{ 1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th' }};
-          const ord = this.y + (suffixes[this.y] || 'th');
-          return '<b>Year:</b> ' + this.x + '<br/>' +
-                 '<b>Fare Type:</b> ' + this.series.name + '<br/>' +
-                 '<b>Popularity Rank:</b> ' + ord + ' most used<br/>' +
-                 '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.point.rides, 0, '.', ',') +
-                 ' (' + this.point.millions + ')';
-        }}
-      }},
-      plotOptions: {{
-        spline: {{
-          lineWidth: 5,
-          marker: {{
-            enabled: true,
-            symbol: 'circle',
-            radius: 8,
-            lineWidth: 2,
-            lineColor: '#0f172a'
-          }},
-          states: {{
-            hover: {{
-              lineWidthPlus: 2
-            }}
-          }}
-        }}
-      }},
-      credits: {{ enabled: false }},
-      series: {series_json}
-    }});
-  </script>
-</body>
-</html>"""
+                plot.title.text_color = "#f8fafc"
+                plot.title.text_font_size = "12pt"
+                plot.title.align = "center"
 
+                plot.xaxis.axis_label_text_color = "#cbd5e1"
+                plot.yaxis.axis_label_text_color = "#cbd5e1"
+                plot.xaxis.axis_label_text_font_style = "bold"
+                plot.yaxis.axis_label_text_font_style = "bold"
+                plot.xaxis.major_label_text_color = "#f8fafc"
+                plot.yaxis.major_label_text_color = "#94a3b8"
+                plot.xaxis.major_label_orientation = 0
+                plot.xaxis.axis_line_color = "#334155"
+                plot.yaxis.axis_line_color = "#334155"
+                plot.xaxis.major_tick_line_color = "#334155"
+                plot.yaxis.major_tick_line_color = "#334155"
+                plot.yaxis.minor_tick_line_color = None
+                plot.yaxis.formatter = PrintfTickFormatter(format="%.1fM")
+
+                # Remove all horizontal and vertical gridlines
+                plot.xgrid.grid_line_color = None
+                plot.ygrid.grid_line_color = None
+
+                html_content = file_html(plot, CDN, "Transit Ridership Plot")
+                html_content = html_content.replace(
+                    "</head>",
+                    "<style>html, body { margin: 0; padding: 0; background: #0f172a; overflow: hidden; }</style></head>",
+                )
                 return ui.tags.iframe(
-                    srcdoc=html_doc,
-                    style="width: 100%; height: 430px; border: none; overflow: hidden; border-radius: 8px;",
+                    srcdoc=html_content,
+                    style="width: 100%; height: 380px; border: none; overflow: hidden; border-radius: 8px; background: #0f172a;",
                 )
 
     ui.nav_spacer()
