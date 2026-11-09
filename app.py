@@ -918,8 +918,8 @@ with ui.navset_tab():
         base_skywalk_layer = GeoJSON(
             data=BASE_SKYWALK_GEOJSON,
             style={
-                "color": "#D6AD60",
-                "fillColor": "#D6AD60",
+                "color": "#b09905",
+                "fillColor": "#b09905",
                 "fillOpacity": 0.82,
                 "opacity": 0.95,
                 "weight": 2.5,
@@ -956,7 +956,7 @@ with ui.navset_tab():
         base_hubs_layer = GeoJSON(
             data=BASE_HUBS_GEOJSON,
             style={
-                "color": "#D6AD60",
+                "color": "#b09905",
                 "fillColor": "#000000",
                 "fillOpacity": 1.0,
                 "opacity": 1.0,
@@ -1078,7 +1078,7 @@ with ui.navset_tab():
         plus15_map_widget.add_control(
             LegendControl(
                 {
-                    "+15 Skywalk Link": "#D6AD60",
+                    "+15 Skywalk Link": "#b09905",
                     "Route on +15": "#00E5FF",
                     "Route on Street": "#1E3A8A",
                 },
@@ -2533,15 +2533,7 @@ with ui.navset_tab():
         gridLineColor: '#1e293b',
         gridLineDashStyle: 'Dash',
         labels: {{
-          style: {{
-            color: '#f8fafc',
-            fontSize: '10px',
-            fontWeight: 'bold',
-            textOutline: '1px #0f172a'
-          }},
-          formatter: function() {{
-            return (this.value / 1000000).toFixed(1) + 'M';
-          }}
+          enabled: false
         }},
         plotLines: [{{
           value: {overall_avg},
@@ -2661,7 +2653,7 @@ with ui.navset_tab():
         else:
             min_year, max_year, default_start_year = 2007, 2024, 2018
 
-        with ui.card(full_screen=True, height="520px"):
+        with ui.card(full_screen=True, height="530px"):
             ui.card_header("Annual Transit Ridership")
             ui.input_slider(
                 "year_range",
@@ -2696,7 +2688,7 @@ with ui.navset_tab():
                     x_range=df["year_str"].tolist(),
                     x_axis_label="Year",
                     y_axis_label="Total Ridership",
-                    height=360,
+                    height=345,
                     sizing_mode="stretch_width",
                     tools="",
                     toolbar_location=None,
@@ -2731,6 +2723,8 @@ with ui.navset_tab():
                 plot.background_fill_color = "#0f172a"
                 plot.border_fill_color = "#0f172a"
                 plot.outline_line_color = None
+                plot.min_border_bottom = 35
+                plot.xaxis.axis_label_standoff = 10
                 plot.y_range.start = 0
 
                 plot.title.text_color = "#f8fafc"
@@ -2762,7 +2756,7 @@ with ui.navset_tab():
                 )
                 return ui.tags.iframe(
                     srcdoc=html_content,
-                    style="width: 100%; height: 380px; border: none; overflow: hidden; border-radius: 8px; background: #0f172a;",
+                    style="width: 100%; height: 390px; border: none; overflow: hidden; border-radius: 8px; background: #0f172a;",
                 )
 
     ui.nav_spacer()
