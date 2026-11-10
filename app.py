@@ -1651,6 +1651,11 @@ with ui.navset_tab():
         pointer-events: none;
         z-index: 10;
         }}
+        @media (max-width: 640px) {{
+            #center-kpi {{
+                display: none !important;
+            }}
+        }}
     </style>
     </head>
     <body>
@@ -2265,7 +2270,7 @@ with ui.navset_tab():
                                 "crop": False,
                                 "formatter": None,
                                 "format": (
-                                    f"<div style='background:#1e293b;color:#f8fafc;"
+                                    f"<div class='bump-pill' style='background:#1e293b;color:#f8fafc;"
                                     f"border:2px solid {color};border-radius:6px;"
                                     f"padding:4px 10px;font-size:11px;font-weight:700;"
                                     f"white-space:nowrap;letter-spacing:0.4px;'>"
@@ -2288,6 +2293,7 @@ with ui.navset_tab():
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <style>
     html, body, #bump-container {{
@@ -2299,95 +2305,155 @@ with ui.navset_tab():
         overflow: hidden;
         font-family: sans-serif;
     }}
+    body.is-mobile .bump-pill {{
+        display: none !important;
+    }}
+    @media (max-width: 640px) {{
+        .bump-pill {{
+            display: none !important;
+        }}
+    }}
     </style>
 </head>
 <body>
     <div id="bump-container"></div>
     <script>
-    Highcharts.chart('bump-container', {{
+    function isMobileViewport() {{
+        const w = window.innerWidth || document.documentElement.clientWidth || 0;
+        const pw = (window.parent && window.parent.innerWidth) ? window.parent.innerWidth : 0;
+        const sw = (window.screen && window.screen.width) ? window.screen.width : 0;
+        return (w > 0 && w <= 640) || (pw > 0 && pw <= 768) || (sw > 0 && sw <= 768);
+    }}
+
+    const initialMobile = isMobileViewport();
+    if (initialMobile) {{
+        document.body.classList.add('is-mobile');
+    }}
+
+    const bumpChart = Highcharts.chart('bump-container', {{
         chart: {{
-        type: 'spline',
-        backgroundColor: '#0f172a',
-        marginLeft: 65,
-        marginRight: 235,
-        marginTop: 75,
-        marginBottom: 75
+            type: 'spline',
+            backgroundColor: '#0f172a',
+            marginLeft: initialMobile ? 48 : 65,
+            marginRight: initialMobile ? 20 : 235,
+            marginTop: 75,
+            marginBottom: initialMobile ? 115 : 75
         }},
         title: {{
-        text: 'Fare Type Popularity',
-        style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
+            text: 'Fare Type Popularity',
+            style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
         }},
         subtitle: {{
-        text: null
+            text: null
         }},
         xAxis: {{
-        categories: {years_json},
-        opposite: true,
-        lineWidth: 0,
-        tickWidth: 0,
-        gridLineWidth: 0,
-        labels: {{
-            style: {{ color: '#f8fafc', fontSize: '12px', fontWeight: 'bold' }}
-        }}
+            categories: {years_json},
+            opposite: true,
+            lineWidth: 0,
+            tickWidth: 0,
+            gridLineWidth: 0,
+            labels: {{
+                rotation: 0,
+                style: {{
+                    color: '#f8fafc',
+                    fontSize: initialMobile ? '10px' : '12px',
+                    fontWeight: 'bold'
+                }}
+            }}
         }},
         yAxis: {{
-        reversed: true,
-        min: 1,
-        max: 5,
-        tickInterval: 1,
-        startOnTick: true,
-        endOnTick: true,
-        gridLineWidth: 0,
-        title: {{ text: null }},
-        labels: {{
-            useHTML: true,
-            x: -12,
-            formatter: function() {{
-            return '<div style="background:#1e293b;color:#f8fafc;border:2px solid #40c2f3;' +
-                    'border-radius:6px;padding:3px 9px;font-weight:700;font-size:12px;">' +
-                    this.value + '</div>';
+            reversed: true,
+            min: 1,
+            max: 5,
+            tickInterval: 1,
+            startOnTick: true,
+            endOnTick: true,
+            gridLineWidth: 0,
+            title: {{ text: null }},
+            labels: {{
+                useHTML: true,
+                x: initialMobile ? -8 : -12,
+                formatter: function() {{
+                    return '<div style="background:#1e293b;color:#f8fafc;border:2px solid #40c2f3;' +
+                        'border-radius:6px;padding:3px 9px;font-weight:700;font-size:12px;">' +
+                        this.value + '</div>';
+                }}
             }}
-        }}
         }},
         legend: {{
-        enabled: true,
-        itemStyle: {{ color: '#f8fafc', fontSize: '11px', fontWeight: '600' }},
-        itemHoverStyle: {{ color: '#00E5FF' }}
+            enabled: true,
+            itemMarginBottom: initialMobile ? 4 : 0,
+            itemStyle: {{
+                color: '#f8fafc',
+                fontSize: initialMobile ? '10px' : '11px',
+                fontWeight: '600'
+            }},
+            itemHoverStyle: {{ color: '#00E5FF' }}
         }},
         tooltip: {{
-        backgroundColor: '#1e293b',
-        borderColor: '#00E5FF',
-        borderWidth: 1.5,
-        style: {{ color: '#f8fafc', fontSize: '12px' }},
-        formatter: function() {{
-            const suffixes = {{ 1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th' }};
-            const ord = this.y + (suffixes[this.y] || 'th');
-            return '<b>Year:</b> ' + this.x + '<br/>' +
-                    '<b>Fare Type:</b> ' + this.series.name + '<br/>' +
-                    '<b>Popularity Rank:</b> ' + ord + ' most used<br/>' +
-                    '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.point.rides, 0, '.', ',') +
-                    ' (' + this.point.millions + ')';
-        }}
+            backgroundColor: '#1e293b',
+            borderColor: '#00E5FF',
+            borderWidth: 1.5,
+            style: {{ color: '#f8fafc', fontSize: '12px' }},
+            formatter: function() {{
+                const suffixes = {{ 1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th' }};
+                const ord = this.y + (suffixes[this.y] || 'th');
+                return '<b>Year:</b> ' + this.x + '<br/>' +
+                        '<b>Fare Type:</b> ' + this.series.name + '<br/>' +
+                        '<b>Popularity Rank:</b> ' + ord + ' most used<br/>' +
+                        '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.point.rides, 0, '.', ',') +
+                        ' (' + this.point.millions + ')';
+            }}
         }},
         plotOptions: {{
-        spline: {{
-            lineWidth: 5,
-            marker: {{
-            enabled: true,
-            symbol: 'circle',
-            radius: 8,
-            lineWidth: 2,
-            lineColor: '#0f172a'
-            }},
-            states: {{
-            hover: {{
-                lineWidthPlus: 2
+            spline: {{
+                lineWidth: initialMobile ? 4 : 5,
+                marker: {{
+                    enabled: true,
+                    symbol: 'circle',
+                    radius: initialMobile ? 6 : 8,
+                    lineWidth: 2,
+                    lineColor: '#0f172a'
+                }},
+                states: {{
+                    hover: {{
+                        lineWidthPlus: 2
+                    }}
+                }}
             }}
-            }}
-        }}
         }},
         credits: {{ enabled: false }},
         series: {series_json}
+    }});
+
+    window.addEventListener('resize', function() {{
+        const mobileNow = isMobileViewport();
+        document.body.classList.toggle('is-mobile', mobileNow);
+        bumpChart.update({{
+            chart: {{
+                marginLeft: mobileNow ? 48 : 65,
+                marginRight: mobileNow ? 20 : 235,
+                marginBottom: mobileNow ? 115 : 75
+            }},
+            xAxis: {{
+                labels: {{
+                    style: {{ fontSize: mobileNow ? '10px' : '12px' }}
+                }}
+            }},
+            yAxis: {{
+                labels: {{ x: mobileNow ? -8 : -12 }}
+            }},
+            legend: {{
+                itemMarginBottom: mobileNow ? 4 : 0,
+                itemStyle: {{ fontSize: mobileNow ? '10px' : '11px' }}
+            }},
+            plotOptions: {{
+                spline: {{
+                    lineWidth: mobileNow ? 4 : 5,
+                    marker: {{ radius: mobileNow ? 6 : 8 }}
+                }}
+            }}
+        }}, true);
     }});
     </script>
 </body>
@@ -2737,7 +2803,9 @@ with ui.navset_tab():
                 plot.yaxis.axis_label_text_font_style = "bold"
                 plot.xaxis.major_label_text_color = "#f8fafc"
                 plot.yaxis.major_label_text_color = "#94a3b8"
-                plot.xaxis.major_label_orientation = 0
+                # Set 0.0001 instead of 0 so Bokeh explicitly writes major_label_orientation into JSON
+                plot.xaxis.major_label_orientation = 0.0001
+                plot.xaxis.major_label_text_font_size = "10pt"
                 plot.xaxis.axis_line_color = "#334155"
                 plot.yaxis.axis_line_color = "#334155"
                 plot.xaxis.major_tick_line_color = "#334155"
@@ -2750,10 +2818,58 @@ with ui.navset_tab():
                 plot.ygrid.grid_line_color = None
 
                 html_content = file_html(plot, CDN, "Transit Ridership Plot")
-                html_content = html_content.replace(
-                    "</head>",
-                    "<style>html, body { margin: 0; padding: 0; background: #0f172a; overflow: hidden; }</style></head>",
-                )
+                mobile_head_inject = """
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>html, body { margin: 0; padding: 0; background: #0f172a; overflow: hidden; }</style>
+                <script>
+                (function() {
+                    function isMobileScreen() {
+                        const w = window.innerWidth || document.documentElement.clientWidth || 0;
+                        const pw = (window.parent && window.parent.innerWidth) ? window.parent.innerWidth : 0;
+                        const sw = (window.screen && window.screen.width) ? window.screen.width : 0;
+                        return (w > 0 && w <= 640) || (pw > 0 && pw <= 768) || (sw > 0 && sw <= 768);
+                    }
+
+                    // 1. Update serialized Bokeh JSON before Bokeh embeds the canvas
+                    document.addEventListener("DOMContentLoaded", function() {
+                        if (isMobileScreen()) {
+                            const scripts = document.querySelectorAll('script[type="application/json"]');
+                            scripts.forEach(function(s) {
+                                s.textContent = s.textContent
+                                    .replace(/"major_label_orientation"\\s*:\\s*0\\.0001/g, '"major_label_orientation": 1.0472')
+                                    .replace(/"major_label_text_font_size"\\s*:\\s*"10pt"/g, '"major_label_text_font_size": "8pt"')
+                                    .replace(/"min_border_bottom"\\s*:\\s*35/g, '"min_border_bottom": 55');
+                            });
+                        }
+                        setTimeout(applyLiveBokehMobile, 150);
+                    });
+
+                    // 2. Also update live BokehJS models if resized or toggled in DevTools
+                    function applyLiveBokehMobile() {
+                        if (!window.Bokeh || !window.Bokeh.documents || !window.Bokeh.documents.length) return;
+                        const mobile = isMobileScreen();
+                        const doc = window.Bokeh.documents[0];
+                        const models = doc._all_models instanceof Map
+                            ? Array.from(doc._all_models.values())
+                            : Object.values(doc._all_models || {});
+                        models.forEach(function(m) {
+                            if (m && "major_label_orientation" in m) {
+                                m.major_label_orientation = mobile ? 1.0472 : 0;
+                                m.major_label_text_font_size = mobile ? "8pt" : "10pt";
+                                if (m.change) m.change.emit();
+                            }
+                            if (m && "min_border_bottom" in m) {
+                                m.min_border_bottom = mobile ? 55 : 35;
+                                if (m.change) m.change.emit();
+                            }
+                        });
+                    }
+
+                    window.addEventListener("resize", applyLiveBokehMobile);
+                })();
+                </script>
+                </head>"""
+                html_content = html_content.replace("</head>", mobile_head_inject)
                 return ui.tags.iframe(
                     srcdoc=html_content,
                     style="width: 100%; height: 390px; border: none; overflow: hidden; border-radius: 8px; background: #0f172a;",
