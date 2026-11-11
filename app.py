@@ -1391,7 +1391,12 @@ with ui.navset_tab():
     }}).addTo(map);
 
     const stations = {markers_json};
+    const markerEntries = [];
+
     stations.forEach(st => {{
+      const popupHtml = '<b>' + st.station + '</b><br/>Annual Boardings: ' + st.boardings;
+
+      // Original visible station dot
       const marker = L.circleMarker([st.lat, st.lon], {{
         radius: st.radius,
         color: '#000000',
@@ -1400,7 +1405,37 @@ with ui.navset_tab():
         weight: 1
       }}).addTo(map);
 
-      marker.bindPopup('<b>' + st.station + '</b><br/>Annual Boardings: ' + st.boardings);
+      // Invisible 14px click radius around the dot
+      const hitMarker = L.circleMarker([st.lat, st.lon], {{
+        radius: Math.max(st.radius, 14),
+        stroke: false,
+        fillColor: '#000000',
+        fillOpacity: 0.0,
+        interactive: true
+      }}).addTo(map);
+
+      marker.bindPopup(popupHtml);
+      hitMarker.on('click', () => marker.openPopup());
+
+      markerEntries.push({{ st, marker }});
+    }});
+
+    // Nearest-station click snap (within 18px) so clicking near any small dot opens its popup
+    map.on('click', function(e) {{
+      const clickPt = map.latLngToContainerPoint(e.latlng);
+      let closest = null;
+      let minDist = 18;
+      markerEntries.forEach(entry => {{
+        const stPt = map.latLngToContainerPoint([entry.st.lat, entry.st.lon]);
+        const dist = clickPt.distanceTo(stPt);
+        if (dist < minDist) {{
+          minDist = dist;
+          closest = entry.marker;
+        }}
+      }});
+      if (closest) {{
+        closest.openPopup();
+      }}
     }});
   </script>
 </body>
@@ -1460,7 +1495,7 @@ with ui.navset_tab():
 
                 for _, row in top_n.iterrows():
                     name = str(row[unit_col]).strip()
-                    val = round(float(row["budget"]), 2)
+                    val = round(float(row["budget"]) / 1000.0, 2)
                     is_transit = name == "Calgary Transit"
                     is_exploded = name in {"Calgary Transit", "Green Line"}
 
@@ -1486,8 +1521,8 @@ with ui.navset_tab():
                     remaining_count = len(grouped) - (n_slices - 1)
                     series_data.append(
                         {
-                            "name": f"Other ({remaining_count} Business Units)",
-                            "y": round(other_sum, 2),
+                            "name": "Other",
+                            "y": round(other_sum / 1000.0, 2),
                             "color": "#1E3A8A",
                             "sliced": False,
                         }
@@ -1527,7 +1562,7 @@ with ui.navset_tab():
         }}
       }},
       title: {{
-        text: "Transit's Portion of City of Calgary Budget ($ Millions)",
+        text: "Transit's Portion of City of Calgary Budget ($ Billions)",
         style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
       }},
       subtitle: {{
@@ -1538,7 +1573,7 @@ with ui.navset_tab():
         backgroundColor: '#1e293b',
         borderColor: '#00C49A',
         style: {{ color: '#f8fafc' }},
-        pointFormat: '<b>${{point.y:,.2f}}M</b> ({{point.percentage:.1f}}% of total budget)'
+        pointFormat: '<b>${{point.y:,.2f}} B</b> ({{point.percentage:.1f}}% of total budget)'
       }},
       plotOptions: {{
         pie: {{
@@ -1550,7 +1585,7 @@ with ui.navset_tab():
           edgeWidth: 1.5,
           dataLabels: {{
             enabled: true,
-            format: '<b>{{point.name}}</b>: ${{point.y:,.1f}}M ({{point.percentage:.1f}}%)',
+            format: '<b>{{point.name}}</b>: ${{point.y:,.2f}} B ({{point.percentage:.1f}}%)',
             style: {{
               color: '#f8fafc',
               fontSize: '11px',
@@ -1561,7 +1596,7 @@ with ui.navset_tab():
       }},
       credits: {{ enabled: false }},
       series: [{{
-        name: 'Budget ($M)',
+        name: 'Budget ($B)',
         data: {data_json}
       }}]
     }});
@@ -1684,7 +1719,8 @@ with ui.navset_tab():
             style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
         }},
         subtitle: {{
-            text: null
+            text: "Click any wedge to explode",
+            style: {{ color: '#00E5FF', fontSize: '12px' }}
         }},
         tooltip: {{
             backgroundColor: '#1e293b',
@@ -1877,31 +1913,47 @@ with ui.navset_tab():
             data: ['C-Train Ridership', 'Bus Ridership']
         }},
         grid: {{
-            left: '6%',
+            left: 65,
             right: '4%',
             top: 78,
-            bottom: 40,
+            bottom: 52,
             containLabel: true
         }},
         xAxis: {{
             type: 'category',
+            name: 'Month',
+            nameLocation: 'middle',
+            nameGap: 32,
+            nameTextStyle: {{
+                color: '#cbd5e1',
+                fontSize: 12,
+                fontWeight: 'bold'
+            }},
             boundaryGap: ['3%', '3%'],
             data: {dates_json},
             splitLine: {{ show: false }},
             axisLine: {{ lineStyle: {{ color: '#334155' }} }},
-            axisLabel: {{ color: '#94a3b8', fontSize: 11 }}
+            axisLabel: {{ color: '#f8fafc', fontSize: 11, fontWeight: 'bold' }}
         }},
         yAxis: {{
             type: 'value',
+            name: 'Ridership',
+            nameLocation: 'middle',
+            nameGap: 48,
+            nameTextStyle: {{
+                color: '#cbd5e1',
+                fontSize: 12,
+                fontWeight: 'bold'
+            }},
             scale: true,
             splitLine: {{ show: false }},
             axisLine: {{ show: true, lineStyle: {{ color: '#334155' }} }},
             axisLabel: {{
-            color: '#94a3b8',
-            fontSize: 11,
-            formatter: function(val) {{
-                return (val / 1000000).toFixed(1) + 'M';
-            }}
+                color: '#94a3b8',
+                fontSize: 11,
+                formatter: function(val) {{
+                    return (val / 1000000).toFixed(1) + 'M';
+                }}
             }}
         }},
         series: [
@@ -2337,7 +2389,7 @@ with ui.navset_tab():
             marginLeft: initialMobile ? 48 : 65,
             marginRight: initialMobile ? 20 : 235,
             marginTop: 75,
-            marginBottom: initialMobile ? 115 : 75
+            marginBottom: initialMobile ? 170 : 75
         }},
         title: {{
             text: 'Fare Type Popularity',
@@ -2382,6 +2434,7 @@ with ui.navset_tab():
         }},
         legend: {{
             enabled: true,
+            y: initialMobile ? -10 : 0,
             itemMarginBottom: initialMobile ? 4 : 0,
             itemStyle: {{
                 color: '#f8fafc',
@@ -2433,7 +2486,7 @@ with ui.navset_tab():
             chart: {{
                 marginLeft: mobileNow ? 48 : 65,
                 marginRight: mobileNow ? 20 : 235,
-                marginBottom: mobileNow ? 115 : 75
+                marginBottom: mobileNow ? 170 : 75
             }},
             xAxis: {{
                 labels: {{
@@ -2775,13 +2828,42 @@ with ui.navset_tab():
 
                 plot.add_tools(
                     HoverTool(
-                        tooltips=[
-                            ("Year", "@year"),
-                            (
-                                "Annual Ridership",
-                                "@ridership{0,0} (@ridership_m{0.00}M)",
-                            ),
-                        ]
+                        attachment="vertical",
+                        point_policy="follow_mouse",
+                        show_arrow=False,
+                        tooltips="""
+                        <style>
+                            :host {
+                                background: transparent !important;
+                                background-color: transparent !important;
+                                border: none !important;
+                                padding: 0 !important;
+                                box-shadow: none !important;
+                            }
+                            .bk-tooltip-content, .bk-Tooltip, :host(.bk-Tooltip) {
+                                background: transparent !important;
+                                background-color: transparent !important;
+                                border: none !important;
+                                padding: 0 !important;
+                                box-shadow: none !important;
+                            }
+                        </style>
+                        <div style="
+                            background-color: #1e293b;
+                            color: #f8fafc;
+                            border: 1.5px solid #00E5FF;
+                            border-radius: 6px;
+                            padding: 8px 10px;
+                            font-family: sans-serif;
+                            font-size: 12px;
+                            line-height: 1.45;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+                            white-space: nowrap;
+                        ">
+                            <div><b style="color: #f8fafc;">Year:</b> @year</div>
+                            <div><b style="color: #f8fafc;">Annual Ridership:</b> @ridership{0,0} (@ridership_m{0.00}M)</div>
+                        </div>
+                        """,
                     )
                 )
 
@@ -2804,6 +2886,7 @@ with ui.navset_tab():
                 plot.xaxis.major_label_text_color = "#f8fafc"
                 plot.yaxis.major_label_text_color = "#94a3b8"
                 # Set 0.0001 instead of 0 so Bokeh explicitly writes major_label_orientation into JSON
+                plot.xaxis[0].name = "x_axis"
                 plot.xaxis.major_label_orientation = 0.0001
                 plot.xaxis.major_label_text_font_size = "10pt"
                 plot.xaxis.axis_line_color = "#334155"
@@ -2820,9 +2903,50 @@ with ui.navset_tab():
                 html_content = file_html(plot, CDN, "Transit Ridership Plot")
                 mobile_head_inject = """
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>html, body { margin: 0; padding: 0; background: #0f172a; overflow: hidden; }</style>
+                <style>
+                    html, body { margin: 0; padding: 0; background: #0f172a; overflow: hidden; }
+                </style>
                 <script>
                 (function() {
+                    const cleanTooltipCss = `
+                        :host, :host(.bk-Tooltip), .bk-Tooltip, .bk-tooltip, .bk-tooltip-content {
+                            background: transparent !important;
+                            background-color: transparent !important;
+                            border: none !important;
+                            padding: 0 !important;
+                            margin: 0 !important;
+                            box-shadow: none !important;
+                        }
+                        .bk-tooltip-arrow, .bk-Tooltip::before, .bk-Tooltip::after,
+                        :host::before, :host::after {
+                            display: none !important;
+                            border: none !important;
+                        }
+                    `;
+
+                    // Intercept Shadow DOM creation BEFORE Bokeh loads in <body>
+                    const origAttachShadow = Element.prototype.attachShadow;
+                    Element.prototype.attachShadow = function(init) {
+                        const shadow = origAttachShadow.call(this, init);
+                        const injectStyle = () => {
+                            if (shadow.querySelector("style[data-clean-tooltip]")) return;
+                            const styleEl = document.createElement("style");
+                            styleEl.setAttribute("data-clean-tooltip", "1");
+                            styleEl.textContent = cleanTooltipCss;
+                            shadow.appendChild(styleEl);
+                            if (shadow.adoptedStyleSheets && typeof CSSStyleSheet !== "undefined") {
+                                try {
+                                    const sheet = new CSSStyleSheet();
+                                    sheet.replaceSync(cleanTooltipCss);
+                                    shadow.adoptedStyleSheets = [...shadow.adoptedStyleSheets, sheet];
+                                } catch (e) {}
+                            }
+                        };
+                        injectStyle();
+                        setTimeout(injectStyle, 0);
+                        return shadow;
+                    };
+
                     function isMobileScreen() {
                         const w = window.innerWidth || document.documentElement.clientWidth || 0;
                         const pw = (window.parent && window.parent.innerWidth) ? window.parent.innerWidth : 0;
@@ -2844,7 +2968,7 @@ with ui.navset_tab():
                         setTimeout(applyLiveBokehMobile, 150);
                     });
 
-                    // 2. Also update live BokehJS models if resized or toggled in DevTools
+                    // 2. Also update live BokehJS models (x-axis only) if resized or toggled in DevTools
                     function applyLiveBokehMobile() {
                         if (!window.Bokeh || !window.Bokeh.documents || !window.Bokeh.documents.length) return;
                         const mobile = isMobileScreen();
@@ -2853,7 +2977,7 @@ with ui.navset_tab():
                             ? Array.from(doc._all_models.values())
                             : Object.values(doc._all_models || {});
                         models.forEach(function(m) {
-                            if (m && "major_label_orientation" in m) {
+                            if (m && m.name === "x_axis" && "major_label_orientation" in m) {
                                 m.major_label_orientation = mobile ? 1.0472 : 0;
                                 m.major_label_text_font_size = mobile ? "8pt" : "10pt";
                                 if (m.change) m.change.emit();
@@ -2877,4 +3001,24 @@ with ui.navset_tab():
 
     ui.nav_spacer()
     with ui.nav_control():
-        ui.input_dark_mode(id="mode", mode="dark")
+        with ui.div(
+            style="display: flex; align-items: center; gap: 10px; height: 100%; padding-bottom: 4px;"
+        ):
+            ui.a(
+                "View Code",
+                href="https://github.com/iyanvelji/Plus-15-Map-Project",
+                target="_blank",
+                rel="noopener noreferrer",
+                style=(
+                    "background-color: #205dc7; color: #f8fafc; "
+                    "border: 1px solid #409ff3; padding: 5px 14px; "
+                    "border-radius: 9999px; text-decoration: none; "
+                    "font-weight: 600; font-size: 13px; line-height: 1.2; "
+                    "display: inline-flex; align-items: center;"
+                ),
+            )
+            ui.input_dark_mode(
+                id="mode",
+                mode="dark",
+                style="margin: 0; display: flex; align-items: center;",
+            )
