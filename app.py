@@ -35,8 +35,6 @@ from datetime import date
 # Paths and data loading
 # -----------------------------------------------------------------------------
 APP_DIR = Path(__file__).resolve().parent
-CACHE_DIR = APP_DIR / ".cache"
-ONE_WEEK_SECONDS = 7 * 24 * 60 * 60
 
 
 def find_local_file(*names: str) -> Path:
@@ -52,50 +50,23 @@ ADDRESS_CSV = find_local_file("Parcel Address.csv")
 STREET_CSV = find_local_file("Street Centreline.csv")
 PLUS15_CSV = find_local_file("plus15.csv", "plus15(1).csv")
 
-DATASET_URLS = {
-    # These datasets feed the pre-existing transit dashboard.
-    # All Plus 15 / address / street-routing data are loaded from local CSVs.
-    "ridership": "https://data.calgary.ca/resource/iema-jbc4.json",
-    "ctrain": "https://data.calgary.ca/resource/3u7d-jj5c.json",
-    "budget": "https://data.calgary.ca/resource/fqax-i3nz.json",
+DATASET_FILES = {
+    "ridership": find_local_file("ridership.csv", ".cache/ridership.csv"),
+    "ctrain": find_local_file("ctrain.csv", ".cache/ctrain.csv"),
+    "budget": find_local_file("budget.csv", ".cache/budget.csv"),
 }
 
 
-def load_dataset(
-    name: str, url: str, max_age_seconds: int = ONE_WEEK_SECONDS
-) -> pd.DataFrame:
-    """Load an existing transit dashboard dataset from local CSV/cache/API."""
-    local_file = APP_DIR / f"{name}.csv"
-    if local_file.exists():
+def load_dataset(name: str, csv_path: Path) -> pd.DataFrame:
+    """Load a transit dashboard dataset strictly from its local CSV file."""
+    if csv_path.exists():
         try:
-            return pd.read_csv(local_file)
+            return pd.read_csv(csv_path, low_memory=False)
         except Exception as exc:
-            print(f"[{name}] Could not read {local_file}: {exc}")
-
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_file = CACHE_DIR / f"{name}.csv"
-    if cache_file.exists():
-        age = time.time() - cache_file.stat().st_mtime
-        if age < max_age_seconds:
-            try:
-                return pd.read_csv(cache_file)
-            except Exception as exc:
-                print(f"[{name}] Could not read cached file: {exc}")
-
-    try:
-        response = requests.get(url, timeout=20)
-        response.raise_for_status()
-        df = pd.DataFrame(response.json())
-        df.to_csv(cache_file, index=False)
-        return df
-    except Exception as exc:
-        print(f"[{name}] API fetch failed: {exc}")
-        if cache_file.exists():
-            try:
-                return pd.read_csv(cache_file)
-            except Exception:
-                pass
-        return pd.DataFrame()
+            print(f"[{name}] Could not read {csv_path}: {exc}")
+    else:
+        print(f"[{name}] Local CSV file not found: {csv_path}")
+    return pd.DataFrame()
 
 
 for required_file in (ADDRESS_CSV, STREET_CSV, PLUS15_CSV):
@@ -1241,7 +1212,8 @@ with ui.navset_tab():
         ui.h1("Calgary Transit Dashboard")
 
         transit_datasets = {
-            name: load_dataset(name, url) for name, url in DATASET_URLS.items()
+            name: load_dataset(name, csv_path)
+            for name, csv_path in DATASET_FILES.items()
         }
         ridership_df = transit_datasets["ridership"]
         ctrain_df = transit_datasets["ctrain"]
@@ -1826,6 +1798,31 @@ with ui.navset_tab():
                 time_format="%Y/%m",
             )
 
+            @reactive.effect
+            @reactive.event(input.monthly_range)
+            def _enforce_min_two_months():
+                start_dt, end_dt = input.monthly_range()
+                start_ym = start_dt.strftime("%Y/%m")
+                end_ym = end_dt.strftime("%Y/%m")
+
+                if start_ym >= end_ym and not monthly_df.empty:
+                    # Find the index of the selected end month in the 10-year window
+                    idx_list = monthly_df.index[
+                        monthly_df["date_str"] <= end_ym
+                    ].tolist()
+                    if idx_list:
+                        curr_idx = idx_list[-1]
+                        if (
+                            curr_idx > 0
+                            and monthly_df.loc[curr_idx - 1, "dt"].date()
+                            >= min_month_date
+                        ):
+                            new_start = monthly_df.loc[curr_idx - 1, "dt"].date()
+                            ui.update_slider("monthly_range", value=[new_start, end_dt])
+                        elif curr_idx + 1 < len(monthly_df):
+                            new_end = monthly_df.loc[curr_idx + 1, "dt"].date()
+                            ui.update_slider("monthly_range", value=[start_dt, new_end])
+
             @render.ui
             def render_ctrain_bus_line():
                 import json
@@ -1843,6 +1840,14 @@ with ui.navset_tab():
                     (monthly_df["date_str"] >= start_ym)
                     & (monthly_df["date_str"] <= end_ym)
                 ].copy()
+
+                # Enforce a minimum of 2 months so ECharts always draws a line segment
+                if len(df_sub) == 1:
+                    idx = df_sub.index[0]
+                    if idx > 0:
+                        df_sub = monthly_df.loc[idx - 1 : idx].copy()
+                    elif idx + 1 < len(monthly_df):
+                        df_sub = monthly_df.loc[idx : idx + 1].copy()
 
                 if df_sub.empty:
                     return ui.p("No monthly records match this date range.")
@@ -2145,15 +2150,17 @@ with ui.navset_tab():
         borderWidth: 1.5,
         style: {{ color: '#f8fafc', fontSize: '12px' }},
         formatter: function() {{
-          const parts = this.series.name.split(' — ');
-          const passengerCategory = parts[0] || this.series.userOptions.stack;
-          const fareType = parts[1] || this.series.name;
-          return '<b>Year:</b> ' + this.x + '<br/>' +
+            const yr = (this.series.xAxis && this.series.xAxis.categories && this.series.xAxis.categories[this.x]) || this.key || this.x;
+            const parts = this.series.name.split(' — ');
+            const passengerCategory = parts[0] || this.series.userOptions.stack;
+            const fareType = parts[1] || this.series.name;
+            return '<b>Year:</b> ' + yr + '<br/>' +
                  '<b>Passenger Category:</b> ' + passengerCategory + '<br/>' +
                  '<b>Fare Type:</b> ' + fareType + '<br/>' +
                  '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.y, 0, '.', ',') +
                  ' (' + (this.y / 1000000).toFixed(2) + 'M)<br/>' +
-                 '<b>' + passengerCategory + ' Group Total:</b> ' + Highcharts.numberFormat(this.point.stackTotal, 0, '.', ',');
+                 '<b>' + passengerCategory + ' Group Total:</b> ' + Highcharts.numberFormat(this.point.stackTotal, 0, '.', ',') +
+                 ' (' + (this.point.stackTotal / 1000000).toFixed(2) + 'M)';
         }}
       }},
       plotOptions: {{
@@ -2449,9 +2456,10 @@ with ui.navset_tab():
             borderWidth: 1.5,
             style: {{ color: '#f8fafc', fontSize: '12px' }},
             formatter: function() {{
+                const yr = (this.series.xAxis && this.series.xAxis.categories && this.series.xAxis.categories[this.x]) || this.key || this.x;
                 const suffixes = {{ 1: 'st', 2: 'nd', 3: 'rd', 4: 'th', 5: 'th' }};
                 const ord = this.y + (suffixes[this.y] || 'th');
-                return '<b>Year:</b> ' + this.x + '<br/>' +
+                return '<b>Year:</b> ' + yr + '<br/>' +
                         '<b>Fare Type:</b> ' + this.series.name + '<br/>' +
                         '<b>Popularity Rank:</b> ' + ord + ' most used<br/>' +
                         '<b>Annual Ridership:</b> ' + Highcharts.numberFormat(this.point.rides, 0, '.', ',') +
