@@ -3,14 +3,12 @@ from __future__ import annotations
 import heapq
 import math
 import re
-import time
 from collections import defaultdict
 from itertools import count
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import requests
 
 from bokeh.embed import file_html
 from bokeh.models import ColumnDataSource, HoverTool
