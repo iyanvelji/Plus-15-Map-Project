@@ -1,0 +1,8 @@
+# Direct third-party dependencies imported by app.py
+bokeh
+ipyleaflet
+ipywidgets
+numpy
+pandas
+shiny
+shinywidgets
