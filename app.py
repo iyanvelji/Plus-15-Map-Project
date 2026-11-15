@@ -47,6 +47,7 @@ def find_local_file(*names: str) -> Path:
 ADDRESS_CSV = find_local_file("Parcel Address.csv")
 STREET_CSV = find_local_file("Street Centreline.csv")
 PLUS15_CSV = find_local_file("plus15.csv", "plus15(1).csv")
+LANDMARKS_CSV = find_local_file("landmarks.csv")
 
 DATASET_FILES = {
     "ridership": find_local_file("ridership.csv", ".cache/ridership.csv"),
@@ -659,6 +660,150 @@ def resolve_address(query: str) -> dict | None:
     }
 
 
+from difflib import SequenceMatcher
+
+POINT_WKT_RE = re.compile(
+    r"POINT\s*\(\s*([-+]?\d+(?:\.\d+)?)\s+([-+]?\d+(?:\.\d+)?)\s*\)",
+    flags=re.IGNORECASE,
+)
+
+
+def _clean_landmark_text(text: object) -> str:
+    """Normalize landmark names and queries for partial/fuzzy matching."""
+    s = str(text or "").casefold()
+    s = s.replace("&", " and ")
+    s = re.sub(r"\(\s*the\s*\)", " ", s)
+    s = re.sub(r"[^a-z0-9\s]", " ", s)
+    s = re.sub(r"\bthe\b", " ", s)
+    return re.sub(r"\s+", " ", s).strip()
+
+
+def _load_landmark_records(csv_path: Path) -> list[dict]:
+    if not csv_path.exists():
+        return []
+    try:
+        df = pd.read_csv(csv_path, low_memory=False)
+    except Exception as exc:
+        print(f"[landmarks] Could not read {csv_path}: {exc}")
+        return []
+
+    records: list[dict] = []
+    for _, row in df.iterrows():
+        tradename = str(row.get("TRADENAME", "")).strip()
+        if not tradename or tradename.lower() == "nan":
+            continue
+        address = str(row.get("ADDRESS", "")).strip()
+        if address.lower() == "nan":
+            address = ""
+        point_val = str(row.get("POINT", "")).strip()
+        coord = None
+        match = POINT_WKT_RE.search(point_val)
+        if match:
+            coord = (float(match.group(1)), float(match.group(2)))
+        norm_name = _clean_landmark_text(tradename)
+        if not norm_name:
+            continue
+        records.append(
+            {
+                "label": tradename,
+                "address": address,
+                "coord": coord,
+                "norm_name": norm_name,
+                "tokens": set(norm_name.split()),
+            }
+        )
+    return records
+
+
+LANDMARK_RECORDS = _load_landmark_records(LANDMARKS_CSV)
+
+
+def resolve_landmark(query: str) -> dict | None:
+    """Match a landmark from landmarks.csv using exact, substring, token, or fuzzy matching."""
+    q_raw = query.strip().casefold()
+    q_norm = _clean_landmark_text(query)
+    if not q_norm or not LANDMARK_RECORDS:
+        return None
+    q_tokens = set(q_norm.split())
+
+    matched_rec = None
+
+    # 1. Exact case-insensitive or normalized match
+    for rec in LANDMARK_RECORDS:
+        if rec["label"].casefold() == q_raw or rec["norm_name"] == q_norm:
+            matched_rec = rec
+            break
+
+    # 2. Substring match (e.g. "contemporary calgary" -> "CONTEMPORARY CALGARY ARTS SOCIETY")
+    if matched_rec is None:
+        sub_matches = [
+            rec
+            for rec in LANDMARK_RECORDS
+            if q_norm in rec["norm_name"]
+            or (len(rec["norm_name"]) >= 4 and rec["norm_name"] in q_norm)
+        ]
+        if sub_matches:
+            sub_matches.sort(
+                key=lambda r: (
+                    0 if r["norm_name"].startswith(q_norm) else 1,
+                    len(r["norm_name"]),
+                )
+            )
+            matched_rec = sub_matches[0]
+
+    # 3. Token subset match (e.g. "The Imperial Tap" -> "IMPERIAL TAP PUB & GRILL")
+    if matched_rec is None and q_tokens:
+        token_matches = [
+            rec for rec in LANDMARK_RECORDS if q_tokens.issubset(rec["tokens"])
+        ]
+        if token_matches:
+            token_matches.sort(key=lambda r: (len(r["tokens"]), len(r["norm_name"])))
+            matched_rec = token_matches[0]
+
+    # 4. Fuzzy similarity fallback for minor typos or partial names
+    if matched_rec is None:
+        best_rec = None
+        best_score = 0.0
+        for rec in LANDMARK_RECORDS:
+            seq_ratio = SequenceMatcher(None, q_norm, rec["norm_name"]).ratio()
+            overlap = len(q_tokens & rec["tokens"]) / max(1, len(q_tokens))
+            score = 0.55 * overlap + 0.45 * seq_ratio
+            if score > best_score:
+                best_score = score
+                best_rec = rec
+        if best_score >= 0.65:
+            matched_rec = best_rec
+
+    if matched_rec is None:
+        return None
+
+    coord = matched_rec["coord"]
+    if coord is None and matched_rec["address"]:
+        # Fallback to Parcel Address.csv for landmark rows with no POINT (e.g. Central Library)
+        cleaned_addr = re.sub(r"^\s*#\S+\s+", "", matched_rec["address"])
+        addr_res = resolve_address(cleaned_addr) or resolve_address(
+            matched_rec["address"]
+        )
+        if addr_res is not None:
+            coord = addr_res["coord"]
+
+    if coord is None:
+        return None
+
+    display_label = (
+        matched_rec["label"].title()
+        if matched_rec["label"].isupper()
+        else matched_rec["label"]
+    )
+    addr_note = f", {matched_rec['address']}" if matched_rec["address"] else ""
+    return {
+        "kind": "address",
+        "label": display_label,
+        "coord": coord,
+        "note": f"Matched to landmark ({display_label}{addr_note}).",
+    }
+
+
 def resolve_location(query: str) -> dict | None:
     if not query or not query.strip():
         return None
@@ -671,6 +816,14 @@ def resolve_location(query: str) -> dict | None:
             "coord": BUILDING_COORDS[building],
             "note": f"Matched to Plus 15 building ({building}).",
         }
+    # If the input matches a street address pattern (e.g. "520 10 Ave SW"), resolve address first
+    if parse_address_query(query) is not None:
+        addr = resolve_address(query)
+        if addr is not None:
+            return addr
+    landmark = resolve_landmark(query)
+    if landmark is not None:
+        return landmark
     return resolve_address(query)
 
 
@@ -815,12 +968,97 @@ with ui.navset_tab():
             }
         """)
 
+        ui.tags.script("""
+        (function() {
+            let reloadCooldown = 0;
+            let consecutiveFailures = 0;
+
+            function enforceSvgLayerOrder(svgRoot) {
+                const g = svgRoot.querySelector("g");
+                if (!g) return { hubs: 0, skywalks: 0 };
+
+                const paths = Array.from(g.querySelectorAll("path"));
+                const routePaths = [];
+                const hubPaths = [];
+                const endpointPaths = [];
+                let skywalkCount = 0;
+
+                paths.forEach(function(p) {
+                    const fill = (p.getAttribute("fill") || "").toLowerCase();
+                    const stroke = (p.getAttribute("stroke") || "").toLowerCase();
+
+                    if (fill === "#000000" || fill === "rgb(0, 0, 0)") {
+                        hubPaths.push(p);
+                    } else if (
+                        fill === "#16a34a" || fill === "rgb(22, 163, 74)" ||
+                        fill === "#dc2626" || fill === "rgb(220, 38, 38)"
+                    ) {
+                        endpointPaths.push(p);
+                    } else if (
+                        stroke === "#00e5ff" || stroke === "rgb(0, 229, 255)" ||
+                        stroke === "#1e3a8a" || stroke === "rgb(30, 58, 138)"
+                    ) {
+                        routePaths.push(p);
+                    } else if (stroke === "#b09905" || stroke === "rgb(176, 153, 5)") {
+                        skywalkCount += 1;
+                    }
+                });
+
+                // Keep route lines above base skywalk, black hub circles above route lines,
+                // and green/red start/destination markers at the very top of the SVG DOM.
+                routePaths.forEach(function(p) { g.appendChild(p); });
+                hubPaths.forEach(function(p) { g.appendChild(p); });
+                endpointPaths.forEach(function(p) { g.appendChild(p); });
+
+                return { hubs: hubPaths.length, skywalks: skywalkCount };
+            }
+
+            function checkAndRepairPlus15Map() {
+                const host = document.getElementById("plus15_map");
+                if (!host || host.offsetParent === null) return;
+
+                const leafletContainer = host.querySelector(".leaflet-container");
+                const svgRoot = host.querySelector(".leaflet-overlay-pane svg");
+
+                if (!leafletContainer || !svgRoot || leafletContainer.clientHeight === 0) {
+                    consecutiveFailures += 1;
+                } else {
+                    const counts = enforceSvgLayerOrder(svgRoot);
+                    // Verify all 102 building hub nodes and 104+ skywalk lines are rendered
+                    if (counts.hubs < 100 || counts.skywalks < 100) {
+                        consecutiveFailures += 1;
+                    } else {
+                        consecutiveFailures = 0;
+                    }
+                }
+
+                // Trigger a fresh map reload in Shiny if the map or its nodes/lines failed to load
+                const now = Date.now();
+                if (consecutiveFailures >= 3 && (now - reloadCooldown > 4000)) {
+                    reloadCooldown = now;
+                    consecutiveFailures = 0;
+                    if (window.Shiny && window.Shiny.setInputValue) {
+                        window.Shiny.setInputValue("plus15_map_reload", now, {priority: "event"});
+                    }
+                }
+            }
+
+            setInterval(checkAndRepairPlus15Map, 1200);
+            document.addEventListener("click", function(e) {
+                if (e.target && e.target.id === "find_route") {
+                    setTimeout(checkAndRepairPlus15Map, 250);
+                    setTimeout(checkAndRepairPlus15Map, 800);
+                }
+            });
+        })();
+        """)
+
         from ipyleaflet import Popup
 
         ui.h1("Calgary Plus 15 Map")
         ui.p(
-            "Enter an address or a Plus 15 building name, then "
-            "select Find Route to highlight the walking path:"
+            "Enter an address or a building name, then "
+            "select Find Route to highlight the walking path. If the building cannot be found use the corresponding address:"
         )
 
         with ui.layout_column_wrap(width=1 / 2):
@@ -832,7 +1070,7 @@ with ui.navset_tab():
             ui.input_text(
                 "end_loc",
                 "Destination",
-                placeholder="e.g. The Bow",
+                placeholder="e.g. 800 3 St SE",
             )
 
         ui.input_action_button("find_route", "Find Route", class_="btn-primary")
@@ -865,205 +1103,279 @@ with ui.navset_tab():
 
             return ui.span(message)
 
-        osm_basemap = TileLayer(
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attribution=(
-                '&copy; <a href="https://www.openstreetmap.org/copyright">'
-                "OpenStreetMap</a> contributors"
-            ),
-            max_zoom=19,
-            name="OpenStreetMap Standard",
-        )
+        EXPECTED_SKYWALK_COUNT = len(BASE_SKYWALK_GEOJSON["features"])
+        EXPECTED_HUB_COUNT = len(BASE_HUBS_GEOJSON["features"])
 
-        plus15_map_widget = Map(
-            basemap=osm_basemap,
-            center=(51.0472, -114.0680),
-            zoom=15,
-            max_zoom=19,
-            scroll_wheel_zoom=True,
-        )
+        map_reload_version = reactive.value(0)
+        map_state: dict = {}
 
-        # 1. Base Gold Plus 15 Skywalk Footprints
-        base_skywalk_layer = GeoJSON(
-            data=BASE_SKYWALK_GEOJSON,
-            style={
-                "color": "#b09905",
-                "fillColor": "#b09905",
-                "fillOpacity": 0.82,
-                "opacity": 0.95,
-                "weight": 2.5,
-            },
-            name="+15 Skywalk Footprints",
-        )
-
-        # 2. Dark Blue Route Layer for Street & Access Segments (non-Plus 15)
-        route_street_layer = GeoJSON(
-            data=EMPTY_GEOJSON,
-            style={
-                "color": "#1E3A8A",
-                "weight": 8,
-                "opacity": 1.0,
-                "fillOpacity": 0.0,
-            },
-            name="Street Route (Dark Blue)",
-        )
-
-        # 3. Light Blue Route Layer Where the Plus 15 Overlaps
-        route_plus15_layer = GeoJSON(
-            data=EMPTY_GEOJSON,
-            style={
-                "color": "#00E5FF",
-                "fillColor": "#00E5FF",
-                "fillOpacity": 0.92,
-                "opacity": 1.0,
-                "weight": 7,
-            },
-            name="Plus 15 Route Overlap (Light Blue)",
-        )
-
-        # 4. Crisp Black Circles for Building Hubs (rendered on top & clickable for Building Name)
-        base_hubs_layer = GeoJSON(
-            data=BASE_HUBS_GEOJSON,
-            style={
-                "color": "#b09905",
-                "fillColor": "#000000",
-                "fillOpacity": 1.0,
-                "opacity": 1.0,
-                "weight": 2.5,
-            },
-            hover_style={
-                "color": "#00E5FF",
-                "fillColor": "#000000",
-                "fillOpacity": 1.0,
-                "weight": 3.5,
-            },
-            name="Building Hubs",
-        )
-
-        # 5. Clickable Start (Green) and Destination (Red) Endpoint Layers
-        start_marker_layer = GeoJSON(
-            data=EMPTY_GEOJSON,
-            style={
-                "color": "#FFFFFF",
-                "fillColor": "#16A34A",
-                "fillOpacity": 1.0,
-                "opacity": 1.0,
-                "weight": 2.5,
-            },
-            hover_style={
-                "color": "#FFD700",
-                "fillColor": "#16A34A",
-                "fillOpacity": 1.0,
-                "weight": 3.5,
-            },
-            name="Start Marker",
-        )
-        end_marker_layer = GeoJSON(
-            data=EMPTY_GEOJSON,
-            style={
-                "color": "#FFFFFF",
-                "fillColor": "#DC2626",
-                "fillOpacity": 1.0,
-                "opacity": 1.0,
-                "weight": 2.5,
-            },
-            hover_style={
-                "color": "#FFD700",
-                "fillColor": "#DC2626",
-                "fillOpacity": 1.0,
-                "weight": 3.5,
-            },
-            name="Destination Marker",
-        )
-
-        active_hub_popup = {"layer": None}
-
-        def _show_map_popup(lat: float, lon: float, label_text: str):
-            if active_hub_popup["layer"] is not None:
-                try:
-                    plus15_map_widget.remove_layer(active_hub_popup["layer"])
-                except Exception:
-                    pass
-
-            popup_widget = Popup(
-                location=(float(lat), float(lon)),
-                child=HTML(
-                    value=(
-                        f"<div style='font-family:sans-serif;font-weight:700;"
-                        f"font-size:13px;color:#111827;padding:3px 6px;"
-                        f"white-space:nowrap;'>{label_text}</div>"
-                    )
+        def _build_fresh_plus15_map():
+            osm_basemap = TileLayer(
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                attribution=(
+                    '&copy; <a href="https://www.openstreetmap.org/copyright">'
+                    "OpenStreetMap</a> contributors"
                 ),
-                close_button=True,
-                auto_close=False,
-                close_on_escape_key=True,
+                max_zoom=19,
+                name="OpenStreetMap Standard",
             )
-            active_hub_popup["layer"] = popup_widget
-            plus15_map_widget.add_layer(popup_widget)
 
-        def _on_feature_click(**kwargs):
-            feature = kwargs.get("feature") or {}
-            props = kwargs.get("properties") or feature.get("properties") or {}
-            label_text = props.get("popup_label") or props.get("building")
-            if not label_text:
-                return
-            lon = props.get("lon")
-            lat = props.get("lat")
-            if lon is None or lat is None:
-                b_name = props.get("building")
-                lon, lat = BUILDING_COORDS.get(b_name, (-114.0680, 51.0472))
-            _show_map_popup(float(lat), float(lon), str(label_text))
+            m_widget = Map(
+                basemap=osm_basemap,
+                center=(51.0472, -114.0680),
+                zoom=15,
+                max_zoom=19,
+                scroll_wheel_zoom=True,
+            )
 
-        def _on_route_line_click(**kwargs):
-            # If the user clicks slightly off-center on the light blue route line near a dot,
-            # snap to the nearest building hub within 30 meters and open its popup.
-            coords = kwargs.get("coordinates")
-            if not coords or len(coords) < 2:
-                return
-            click_lat, click_lon = float(coords[0]), float(coords[1])
-            best_name = None
-            best_dist = 30.0
-            for b_name, (b_lon, b_lat) in BUILDING_COORDS.items():
-                d = distance_m((click_lon, click_lat), (b_lon, b_lat))
-                if d < best_dist:
-                    best_dist = d
-                    best_name = (b_name, b_lat, b_lon)
-            if best_name is not None:
-                _show_map_popup(best_name[1], best_name[2], best_name[0])
-
-        base_hubs_layer.on_click(_on_feature_click)
-        start_marker_layer.on_click(_on_feature_click)
-        end_marker_layer.on_click(_on_feature_click)
-        route_plus15_layer.on_click(_on_route_line_click)
-        route_street_layer.on_click(_on_route_line_click)
-
-        # Add layers in bottom-to-top order
-        plus15_map_widget.add_layer(base_skywalk_layer)
-        plus15_map_widget.add_layer(route_street_layer)
-        plus15_map_widget.add_layer(route_plus15_layer)
-        plus15_map_widget.add_layer(base_hubs_layer)
-        plus15_map_widget.add_layer(start_marker_layer)
-        plus15_map_widget.add_layer(end_marker_layer)
-        plus15_map_widget.add_control(
-            LegendControl(
-                {
-                    "+15 Skywalk Link": "#b09905",
-                    "Route on +15": "#00E5FF",
-                    "Route on Street": "#1E3A8A",
+            # 1. Base Gold Plus 15 Skywalk Footprints
+            skywalk_layer = GeoJSON(
+                data={
+                    "type": "FeatureCollection",
+                    "features": list(BASE_SKYWALK_GEOJSON["features"]),
                 },
-                name="Calgary Walking Network",
-                position="bottomright",
+                style={
+                    "color": "#b09905",
+                    "fillColor": "#b09905",
+                    "fillOpacity": 0.82,
+                    "opacity": 0.95,
+                    "weight": 2.5,
+                },
+                name="+15 Skywalk Footprints",
             )
-        )
 
-        @reactive.effect
-        def _update_route_on_map():
-            result = route_result()
+            # 2. Dark Blue Route Layer for Street & Access Segments (non-Plus 15)
+            street_layer = GeoJSON(
+                data=EMPTY_GEOJSON,
+                style={
+                    "color": "#1E3A8A",
+                    "weight": 8,
+                    "opacity": 1.0,
+                    "fillOpacity": 0.0,
+                },
+                name="Street Route (Dark Blue)",
+            )
+
+            # 3. Light Blue Route Layer Where the Plus 15 Overlaps
+            plus15_layer = GeoJSON(
+                data=EMPTY_GEOJSON,
+                style={
+                    "color": "#00E5FF",
+                    "fillColor": "#00E5FF",
+                    "fillOpacity": 0.92,
+                    "opacity": 1.0,
+                    "weight": 7,
+                },
+                name="Plus 15 Route Overlap (Light Blue)",
+            )
+
+            # 4. Crisp Black Circles for Building Hubs (rendered on top & clickable for Building Name)
+            hubs_layer = GeoJSON(
+                data={
+                    "type": "FeatureCollection",
+                    "features": list(BASE_HUBS_GEOJSON["features"]),
+                },
+                style={
+                    "color": "#b09905",
+                    "fillColor": "#000000",
+                    "fillOpacity": 1.0,
+                    "opacity": 1.0,
+                    "weight": 2.5,
+                },
+                hover_style={
+                    "color": "#00E5FF",
+                    "fillColor": "#000000",
+                    "fillOpacity": 1.0,
+                    "weight": 3.5,
+                },
+                name="Building Hubs",
+            )
+
+            # 5. Clickable Start (Green) and Destination (Red) Endpoint Layers
+            start_layer = GeoJSON(
+                data=EMPTY_GEOJSON,
+                style={
+                    "color": "#FFFFFF",
+                    "fillColor": "#16A34A",
+                    "fillOpacity": 1.0,
+                    "opacity": 1.0,
+                    "weight": 2.5,
+                },
+                hover_style={
+                    "color": "#FFD700",
+                    "fillColor": "#16A34A",
+                    "fillOpacity": 1.0,
+                    "weight": 3.5,
+                },
+                name="Start Marker",
+            )
+            end_layer = GeoJSON(
+                data=EMPTY_GEOJSON,
+                style={
+                    "color": "#FFFFFF",
+                    "fillColor": "#DC2626",
+                    "fillOpacity": 1.0,
+                    "opacity": 1.0,
+                    "weight": 2.5,
+                },
+                hover_style={
+                    "color": "#FFD700",
+                    "fillColor": "#DC2626",
+                    "fillOpacity": 1.0,
+                    "weight": 3.5,
+                },
+                name="Destination Marker",
+            )
+
+            active_popup = {"layer": None}
+
+            def _show_map_popup(lat: float, lon: float, label_text: str):
+                if active_popup["layer"] is not None:
+                    try:
+                        m_widget.remove_layer(active_popup["layer"])
+                    except Exception:
+                        pass
+
+                popup_widget = Popup(
+                    location=(float(lat), float(lon)),
+                    child=HTML(
+                        value=(
+                            f"<div style='font-family:sans-serif;font-weight:700;"
+                            f"font-size:13px;color:#111827;padding:3px 6px;"
+                            f"white-space:nowrap;'>{label_text}</div>"
+                        )
+                    ),
+                    close_button=True,
+                    auto_close=False,
+                    close_on_escape_key=True,
+                )
+                active_popup["layer"] = popup_widget
+                m_widget.add_layer(popup_widget)
+
+            def _on_feature_click(**kwargs):
+                feature = kwargs.get("feature") or {}
+                props = kwargs.get("properties") or feature.get("properties") or {}
+                label_text = props.get("popup_label") or props.get("building")
+                if not label_text:
+                    return
+                lon = props.get("lon")
+                lat = props.get("lat")
+                if lon is None or lat is None:
+                    b_name = props.get("building")
+                    lon, lat = BUILDING_COORDS.get(b_name, (-114.0680, 51.0472))
+                _show_map_popup(float(lat), float(lon), str(label_text))
+
+            def _on_route_line_click(**kwargs):
+                coords = kwargs.get("coordinates")
+                if not coords or len(coords) < 2:
+                    return
+                click_lat, click_lon = float(coords[0]), float(coords[1])
+                best_name = None
+                best_dist = 30.0
+                for b_name, (b_lon, b_lat) in BUILDING_COORDS.items():
+                    d = distance_m((click_lon, click_lat), (b_lon, b_lat))
+                    if d < best_dist:
+                        best_dist = d
+                        best_name = (b_name, b_lat, b_lon)
+                if best_name is not None:
+                    _show_map_popup(best_name[1], best_name[2], best_name[0])
+
+            hubs_layer.on_click(_on_feature_click)
+            start_layer.on_click(_on_feature_click)
+            end_layer.on_click(_on_feature_click)
+            plus15_layer.on_click(_on_route_line_click)
+            street_layer.on_click(_on_route_line_click)
+
+            # Add layers in bottom-to-top order
+            m_widget.add_layer(skywalk_layer)
+            m_widget.add_layer(street_layer)
+            m_widget.add_layer(plus15_layer)
+            m_widget.add_layer(hubs_layer)
+            m_widget.add_layer(start_layer)
+            m_widget.add_layer(end_layer)
+            m_widget.add_control(
+                LegendControl(
+                    {
+                        "+15 Skywalk Link": "#b09905",
+                        "Route on +15": "#00E5FF",
+                        "Route on Street": "#1E3A8A",
+                    },
+                    name="Calgary Walking Network",
+                    position="bottomright",
+                )
+            )
+
+            map_state["widget"] = m_widget
+            map_state["skywalk_layer"] = skywalk_layer
+            map_state["street_layer"] = street_layer
+            map_state["plus15_layer"] = plus15_layer
+            map_state["hubs_layer"] = hubs_layer
+            map_state["start_layer"] = start_layer
+            map_state["end_layer"] = end_layer
+
+        _build_fresh_plus15_map()
+
+        def _ensure_map_integrity() -> bool:
+            """Verify that all base layers, nodes, and skywalk lines are present."""
+            m_widget = map_state.get("widget")
+            skywalk_layer = map_state.get("skywalk_layer")
+            hubs_layer = map_state.get("hubs_layer")
+            street_layer = map_state.get("street_layer")
+            plus15_layer = map_state.get("plus15_layer")
+            start_layer = map_state.get("start_layer")
+            end_layer = map_state.get("end_layer")
+
+            if not all(
+                [
+                    m_widget,
+                    skywalk_layer,
+                    hubs_layer,
+                    street_layer,
+                    plus15_layer,
+                    start_layer,
+                    end_layer,
+                ]
+            ):
+                return False
+
+            required_layers = (
+                skywalk_layer,
+                street_layer,
+                plus15_layer,
+                hubs_layer,
+                start_layer,
+                end_layer,
+            )
+            for lyr in required_layers:
+                if lyr not in m_widget.layers:
+                    return False
+
+            skywalk_feats = (skywalk_layer.data or {}).get("features") or []
+            hub_feats = (hubs_layer.data or {}).get("features") or []
+            if (
+                len(skywalk_feats) != EXPECTED_SKYWALK_COUNT
+                or len(hub_feats) != EXPECTED_HUB_COUNT
+            ):
+                return False
+
+            return True
+
+        def _apply_route_to_map(result: dict):
+            if not _ensure_map_integrity():
+                _build_fresh_plus15_map()
+                map_reload_version.set(map_reload_version.get() + 1)
+
+            m_widget = map_state["widget"]
+            street_layer = map_state["street_layer"]
+            plus15_layer = map_state["plus15_layer"]
+            start_layer = map_state["start_layer"]
+            end_layer = map_state["end_layer"]
+
             if not result.get("ok") or len(result.get("path", [])) < 2:
-                route_street_layer.data = EMPTY_GEOJSON
-                route_plus15_layer.data = EMPTY_GEOJSON
-                start_marker_layer.data = EMPTY_GEOJSON
-                end_marker_layer.data = EMPTY_GEOJSON
+                street_layer.data = {"type": "FeatureCollection", "features": []}
+                plus15_layer.data = {"type": "FeatureCollection", "features": []}
+                start_layer.data = {"type": "FeatureCollection", "features": []}
+                end_layer.data = {"type": "FeatureCollection", "features": []}
                 return
 
             route_path = result["path"]
@@ -1123,30 +1435,22 @@ with ui.navset_tab():
                     }
                 )
 
-            # 1. Update route layers first
-            route_street_layer.data = {
+            # Update route layers without touching hubs_layer.data (JS keeps hub nodes on top)
+            street_layer.data = {
                 "type": "FeatureCollection",
                 "features": street_features,
             }
-            route_plus15_layer.data = {
+            plus15_layer.data = {
                 "type": "FeatureCollection",
                 "features": plus15_overlap_features,
             }
 
-            # 2. Re-assign base_hubs_layer.data AFTER the route layers so Leaflet appends
-            # all black building circles ON TOP of the light blue line in the SVG DOM
-            base_hubs_layer.data = {
-                "type": "FeatureCollection",
-                "features": list(BASE_HUBS_GEOJSON["features"]),
-            }
-
-            # 3. Update clickable Start and Destination markers LAST so they sit at the very top
             start_lon, start_lat = result["start"]["coord"]
             end_lon, end_lat = result["end"]["coord"]
             start_label = result["start"]["label"]
             end_label = result["end"]["label"]
 
-            start_marker_layer.data = {
+            start_layer.data = {
                 "type": "FeatureCollection",
                 "features": [
                     {
@@ -1168,7 +1472,7 @@ with ui.navset_tab():
                 ],
             }
 
-            end_marker_layer.data = {
+            end_layer.data = {
                 "type": "FeatureCollection",
                 "features": [
                     {
@@ -1191,17 +1495,33 @@ with ui.navset_tab():
             }
 
             if route_positions:
-                plus15_map_widget.center = (
+                m_widget.center = (
                     sum(pt[0] for pt in route_positions) / len(route_positions),
                     sum(pt[1] for pt in route_positions) / len(route_positions),
                 )
+
+        @reactive.effect
+        def _update_route_on_map():
+            result = route_result()
+            _apply_route_to_map(result)
+
+        @reactive.effect
+        @reactive.event(input.plus15_map_reload)
+        def _handle_client_map_reload():
+            _build_fresh_plus15_map()
+            _apply_route_to_map(route_result())
+            map_reload_version.set(map_reload_version.get() + 1)
 
         with ui.card(full_screen=True, height="700px"):
             ui.card_header("Plus 15")
 
             @render_widget
             def plus15_map():
-                return plus15_map_widget
+                map_reload_version()
+                if not _ensure_map_integrity():
+                    _build_fresh_plus15_map()
+                    _apply_route_to_map(route_result())
+                return map_state["widget"]
 
     # -------------------------------------------------------------------------
     # Existing Calgary Transit Dashboard (retained)
