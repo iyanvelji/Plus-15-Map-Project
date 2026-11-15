@@ -1136,10 +1136,8 @@ with ui.navset_tab():
                 },
                 style={
                     "color": "#b09905",
-                    "fillColor": "#b09905",
-                    "fillOpacity": 0.82,
                     "opacity": 0.95,
-                    "weight": 2.5,
+                    "weight": 4,
                 },
                 name="+15 Skywalk Footprints",
             )
@@ -1149,7 +1147,7 @@ with ui.navset_tab():
                 data=EMPTY_GEOJSON,
                 style={
                     "color": "#1E3A8A",
-                    "weight": 8,
+                    "weight": 4,
                     "opacity": 1.0,
                     "fillOpacity": 0.0,
                 },
@@ -1161,10 +1159,8 @@ with ui.navset_tab():
                 data=EMPTY_GEOJSON,
                 style={
                     "color": "#00E5FF",
-                    "fillColor": "#00E5FF",
-                    "fillOpacity": 0.92,
                     "opacity": 1.0,
-                    "weight": 7,
+                    "weight": 4,
                 },
                 name="Plus 15 Route Overlap (Light Blue)",
             )
@@ -1401,16 +1397,6 @@ with ui.navset_tab():
                 if node_a[0] == "building" and node_b[0] == "building":
                     link = PLUS15_EDGE_LOOKUP.get(frozenset((node_a, node_b)))
                     if link:
-                        ring = [[lon, lat] for lon, lat in link["polygon"]]
-                        if ring[0] != ring[-1]:
-                            ring.append(ring[0])
-                        plus15_overlap_features.append(
-                            {
-                                "type": "Feature",
-                                "properties": {},
-                                "geometry": {"type": "Polygon", "coordinates": [ring]},
-                            }
-                        )
                         plus15_overlap_features.append(
                             {
                                 "type": "Feature",
