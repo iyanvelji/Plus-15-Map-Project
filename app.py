@@ -22,10 +22,19 @@ from ipyleaflet import (
     Polyline,
     TileLayer,
 )
+import sys
+import ipywidgets.comm
 from ipywidgets import HTML
 from shiny import reactive
 from shiny.express import input, render, ui
 from shinywidgets import render_widget
+
+# Fix Pyodide/Shinylive mock ipykernel missing 'version_info' in ipywidgets 8.1+
+if "ipykernel" in sys.modules and not hasattr(sys.modules["ipykernel"], "version_info"):
+    sys.modules["ipykernel"].version_info = (6, 29, 0)
+    sys.modules["ipykernel"].__version__ = "6.29.0"
+if hasattr(ipywidgets.comm, "requires_ipykernel_shim"):
+    ipywidgets.comm.requires_ipykernel_shim = lambda: False
 
 from datetime import date
 
@@ -1309,8 +1318,6 @@ with ui.navset_tab():
             map_state["start_layer"] = start_layer
             map_state["end_layer"] = end_layer
 
-        _build_fresh_plus15_map()
-
         def _ensure_map_integrity() -> bool:
             """Verify that all base layers, nodes, and skywalk lines are present."""
             m_widget = map_state.get("widget")
@@ -1358,8 +1365,10 @@ with ui.navset_tab():
 
         def _apply_route_to_map(result: dict):
             if not _ensure_map_integrity():
+                was_initialized = "widget" in map_state
                 _build_fresh_plus15_map()
-                map_reload_version.set(map_reload_version.get() + 1)
+                if was_initialized:
+                    map_reload_version.set(map_reload_version.get() + 1)
 
             m_widget = map_state["widget"]
             street_layer = map_state["street_layer"]
