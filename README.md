@@ -1,7 +1,7 @@
 # Calgary Plus 15 Map & Transit Dashboard
 
 ### View Here
-[https://iyanvelji-plus-15-map-project.share.connect.posit.cloud/](https://iyanvelji-plus-15-map-project.share.connect.posit.cloud/)
+[https://iyanvelji.github.io/Plus-15-Map-Project/](https://iyanvelji.github.io/Plus-15-Map-Project/)
 
 ## 1. Calgary Plus 15 Map
 
