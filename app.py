@@ -966,7 +966,11 @@ def calculate_route(start_text: str, end_text: str) -> dict:
 # -----------------------------------------------------------------------------
 # Shiny UI
 # -----------------------------------------------------------------------------
-ui.page_opts(title="Calgary Plus 15 Map & Transit Dashboard", fillable=False)
+ui.page_opts(
+    title="Calgary Plus 15 Map & Transit Dashboard",
+    page_title="Calgary Plus 15 Map and Transit Dashboard",
+    fillable=False,
+)
 
 with ui.navset_tab():
     with ui.nav_panel("Calgary Plus 15 Map"):
@@ -1052,13 +1056,42 @@ with ui.navset_tab():
                 }
             }
 
-            setInterval(checkAndRepairPlus15Map, 1200);
-            document.addEventListener("click", function(e) {
-                if (e.target && e.target.id === "find_route") {
-                    setTimeout(checkAndRepairPlus15Map, 250);
-                    setTimeout(checkAndRepairPlus15Map, 800);
-                }
-            });
+            function clearNodeHighlights() {
+              const host = document.getElementById("plus15_map");
+              if (!host) return;
+              const paths = host.querySelectorAll(".leaflet-overlay-pane svg path");
+              paths.forEach(function(p) {
+                  const fill = (p.getAttribute("fill") || "").toLowerCase();
+                  const stroke = (p.getAttribute("stroke") || "").toLowerCase();
+                  if ((fill === "#000000" || fill === "rgb(0, 0, 0)") && 
+                      (stroke === "#00e5ff" || stroke === "rgb(0, 229, 255)")) {
+                      p.setAttribute("stroke", "#b09905");
+                  }
+              });
+          }
+
+          setInterval(checkAndRepairPlus15Map, 1200);
+
+          document.addEventListener("click", function(e) {
+              if (e.target && e.target.id === "find_route") {
+                  setTimeout(checkAndRepairPlus15Map, 250);
+                  setTimeout(checkAndRepairPlus15Map, 800);
+              }
+              const isCloseBtn = e.target && (e.target.classList.contains("leaflet-popup-close-button") || e.target.closest(".leaflet-popup-close-button"));
+              const isMapPane = e.target && (e.target.classList.contains("leaflet-container") || e.target.classList.contains("leaflet-map-pane"));
+              if (isCloseBtn || isMapPane) {
+                  setTimeout(clearNodeHighlights, 50);
+                  setTimeout(clearNodeHighlights, 200);
+              }
+          }, true);
+
+          document.addEventListener("touchstart", function(e) {
+              const isCloseBtn = e.target && (e.target.classList.contains("leaflet-popup-close-button") || e.target.closest(".leaflet-popup-close-button"));
+              if (isCloseBtn) {
+                  setTimeout(clearNodeHighlights, 50);
+                  setTimeout(clearNodeHighlights, 200);
+              }
+          }, { passive: true });
         })();
         """)
 
@@ -1847,7 +1880,7 @@ with ui.navset_tab():
         }}
       }},
       title: {{
-        text: "Transit's Portion of City of Calgary Budget ($ Billions)",
+        text: "Transit's Portion of 2025 City of Calgary Budget ($ Billions)",
         style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
       }},
       subtitle: {{
@@ -2000,7 +2033,7 @@ with ui.navset_tab():
             }}
         }},
         title: {{
-            text: "Transit Ridership by Fare Category",
+            text: "2025 Transit Ridership by Fare Category",
             style: {{ color: '#f8fafc', fontSize: '16px', fontWeight: 'bold' }}
         }},
         subtitle: {{
